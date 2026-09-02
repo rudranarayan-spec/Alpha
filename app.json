@@ -1,0 +1,67 @@
+{
+  "expo": {
+    "name": "Alpha",
+    "slug": "alpha",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/play_store_512.png",
+    "scheme": "alpha",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.housexpertz.app"
+    },
+    "android": {
+      "package": "com.housexpertz.app",
+      "googleServicesFile": "./google-services.json",
+      "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B132B",
+        "foregroundImage": "./assets/images/play_store_512.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "usesCleartextTraffic": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/HS.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/HS.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notifications/ic_stat_hs.png",
+          "color": "#0B132B"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a52eb70e-c758-425d-9e4d-daa0223f8cb3"
+      }
+    },
+    "owner": "rudranarayan.maastrix"
+  }
+}
