@@ -1,4 +1,3 @@
-import { useAuth } from '@clerk/clerk-expo';
 import { FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { MotiView } from 'moti';
@@ -6,7 +5,6 @@ import React, { useState } from 'react';
 import { Alert, Pressable, ScrollView, Share, Switch, Text, View } from 'react-native';
 
 export default function SettingsScreen() {
-    const { signOut } = useAuth();
     const router = useRouter();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
@@ -171,14 +169,7 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* 6. ACCOUNT DISMISSAL SYSTEM ACTION BUTTON */}
-                <View className="px-6 mt-8">
-                    <Pressable
-                        onPress={() => signOut()}
-                        className="bg-rose-50 border border-rose-100 py-4 rounded-2xl items-center justify-center active:scale-95"
-                    >
-                        <Text className="text-rose-600 font-black text-sm tracking-tight">Logout Account</Text>
-                    </Pressable>
-                </View>
+
 
                 {/* 7. APP RUNTIME INFRASTRUCTURE STAMP FOOTER */}
                 <View className="items-center mt-8">
