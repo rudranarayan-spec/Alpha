@@ -50,41 +50,54 @@ export default function PrivacyPolicyScreen() {
                         Data Privacy Standards
                     </Text>
                     <Text className="text-slate-400 text-xs font-medium mb-6">
-                        Last Updated: July 2026
+                        Last Updated: September 2026
                     </Text>
 
                     <Text className="text-slate-600 text-sm font-medium leading-6 mb-6">
-                        We value your trust and are committed to protecting your personal metrics data. This document outlines how we collect, process, share, and protect your info across our system frameworks.
+                        At Alpha, we value your trust and are committed to protecting your personal information. This Privacy Policy outlines how we collect, process, share, and safeguard your data when you browse our catalog, purchase spices, or order eco-friendly packaging products.
                     </Text>
 
+                    {/* SECTION 1 */}
                     <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
                         1. Information We Collect
                     </Text>
                     <Text className="text-slate-500 text-sm font-medium leading-6 mb-5">
-                        • <Text className="font-bold text-slate-700">Account Credentials:</Text> Contact metrics, authentication encryption tokens, and saved regional operational addresses.{"\n\n"}
-                        • <Text className="font-bold text-slate-700">Device Tracking:</Text> Spatial coordinates data, IP metrics addresses, and system hardware configs gathered while matching specialist routings.{"\n\n"}
-                        • <Text className="font-bold text-slate-700">Payment Transactions:</Text> Secure payment engine tokens processed through verified structural banking gateways.
+                        • <Text className="font-bold text-slate-700">Account & Profile Info:</Text> Your name, phone number, email address, and billing details provided during account creation.{"\n\n"}
+                        • <Text className="font-bold text-slate-700">Delivery & Address Data:</Text> Saved shipping coordinates, landmark details, and contact numbers used for product dispatch.{"\n\n"}
+                        • <Text className="font-bold text-slate-700">Order & Commerce Metrics:</Text> Purchase history, cart items, preferred item categories (Spices, Eco-friendly packaging), and saved preferences.{"\n\n"}
+                        • <Text className="font-bold text-slate-700">Payment & Security Tokens:</Text> Encrypted transaction identifiers processed through verified PCI-DSS compliant payment gateways.
                     </Text>
 
+                    {/* SECTION 2 */}
                     <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
-                        2. How Your Data Is Processed
+                        2. How Your Data Is Used
                     </Text>
                     <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-                        Your parameters are used exclusively to deploy local technical services, complete transparent transaction logs, verify structural security patterns, and provide automated routing status alerts.
+                        Your information is used strictly to process orders, package and dispatch goods (Spices and Eco-friendly items), send real-time order tracking updates via push notifications, process refunds, and improve platform performance on Alpha.
                     </Text>
 
+                    {/* SECTION 3 */}
                     <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
-                        3. Information Protection & Safety Keys
+                        3. Logistics & Third-Party Sharing
                     </Text>
                     <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-                        All network streams run directly under Transport Layer Security (TLS) and data assets are locked into AES-256 cloud encryption structures. We never trade or rent out personal data registers to third-party ad frameworks.
+                        We share necessary delivery details (name, address, and phone number) exclusively with our logistics and courier partners to fulfill door-step deliveries. We never sell, trade, or rent out personal user data to third-party advertising networks.
                     </Text>
 
+                    {/* SECTION 4 */}
                     <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
-                        4. User Data Rights
+                        4. Security & Data Protection
+                    </Text>
+                    <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
+                        All application network traffic is protected using Transport Layer Security (TLS/SSL). Personal information, account data, and order databases are stored securely behind encrypted server networks.
+                    </Text>
+
+                    {/* SECTION 5 */}
+                    <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
+                        5. User Rights & Account Control
                     </Text>
                     <Text className="text-slate-500 text-sm font-medium leading-6 mb-2">
-                        You retain full authorization rights over your profile registers. You may request information purging, database extractions, or temporary account system freezes directly by opening a support terminal line.
+                        You maintain full authority over your data. You may update saved addresses, clear your search history, or request full account and data deletion at any time by contacting our support desk.
                     </Text>
                 </View>
             </ScrollView>

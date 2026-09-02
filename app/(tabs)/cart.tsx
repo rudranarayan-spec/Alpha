@@ -1,5 +1,4 @@
 import { useCartStore } from '@/store/cart.store';
-import { useAuth } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { MotiView } from 'moti';
@@ -16,7 +15,6 @@ const INITIAL_ADDRESSES = [
 ];
 
 export default function CartScreen() {
-    const { isSignedIn } = useAuth();
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
@@ -34,12 +32,8 @@ export default function CartScreen() {
     const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
 
     const handleCheckout = () => {
-        if (!isSignedIn) {
-            router.push('/(auth)');
-        } else {
-            // Trigger checkout selection modal immediately
-            setIsAddressModalVisible(true);
-        }
+        // Directly trigger checkout selection modal immediately
+        setIsAddressModalVisible(true);
     };
 
     const handleConfirmOrder = () => {
@@ -100,7 +94,6 @@ export default function CartScreen() {
                     <View className="w-20 h-20 bg-white border border-slate-100 rounded-full items-center justify-center mb-4 shadow-sm">
                         <Ionicons name="cart-outline" size={36} color="#94A3B8" />
                     </View>
-                    {/* <Text className="text-[#0B132B] font-black text-lg tracking-tight">Your Cart is Empty</Text> */}
                     <Text className="text-slate-400 text-xs text-center font-medium mt-1 max-w-[260px]">
                         Looks like you haven&apos;t added any professional services to your dashboard yet.
                     </Text>
@@ -166,24 +159,6 @@ export default function CartScreen() {
                                     <Text className="text-blue-600 font-black text-xl">₹{totalAmount}</Text>
                                 </View>
                             </View>
-
-                            {/* GUEST AUTH NOTIFICATION BANNER CARDS */}
-                            {!isSignedIn && (
-                                <MotiView
-                                    from={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="mx-4 md:mx-0 bg-amber-50/80 border border-amber-200/60 rounded-2xl p-4 mt-5 flex-row items-start"
-                                >
-                                    <Ionicons name="information-circle" size={20} color="#D97706" className="mt-0.5" />
-                                    <View className="flex-1 ml-3">
-                                        <Text className="text-amber-900 font-black text-xs uppercase tracking-wide">Authentication Required</Text>
-                                        <Text className="text-amber-700/90 text-xs font-semibold mt-0.5 leading-4">
-                                            You are completing this checkout profile step as a guest. Secure setup profiles require linking your credentials before scheduling space distribution coordinates.
-                                        </Text>
-                                    </View>
-                                </MotiView>
-                            )}
-
                         </View>
                     </ScrollView>
 
@@ -207,9 +182,9 @@ export default function CartScreen() {
                                 className="bg-blue-600 active:bg-[#0B132B] h-14 rounded-2xl px-6 flex-row items-center justify-center shadow-lg shadow-blue-600/20 flex-1 max-w-xs ml-4 active:scale-98 transition-all"
                             >
                                 <Text className="text-white font-black text-sm md:text-base tracking-tight mr-2">
-                                    {isSignedIn ? 'Place Order' : 'Login to Book'}
+                                    Place Order
                                 </Text>
-                                <Ionicons name={isSignedIn ? "checkmark-circle" : "log-in-outline"} size={18} color="white" />
+                                <Ionicons name="checkmark-circle" size={18} color="white" />
                             </Pressable>
                         </View>
                     </MotiView>
@@ -224,7 +199,6 @@ export default function CartScreen() {
                 onRequestClose={() => setIsAddressModalVisible(false)}
             >
                 <View className="flex-1 justify-end bg-black/60">
-                    {/* Backdrop Dimmer Pressable Dismissal trigger */}
                     <Pressable className="absolute inset-0 w-full h-full" onPress={() => setIsAddressModalVisible(false)} />
 
                     <MotiView
@@ -234,7 +208,6 @@ export default function CartScreen() {
                         style={{ maxHeight: SCREEN_HEIGHT * 0.75 }}
                         className="bg-white rounded-t-[32px] w-full px-6 pt-6 shadow-2xl"
                     >
-                        {/* Handle Bar Accent element */}
                         <View className="w-12 h-1.5 bg-slate-200 rounded-full self-center mb-5" />
 
                         <View className="flex-row justify-between items-center mb-5">
@@ -308,7 +281,6 @@ export default function CartScreen() {
                                     })}
                                 </ScrollView>
 
-                                {/* Bottom Secondary Utility Action trigger inside filled states */}
                                 <Pressable
                                     onPress={handleAddNewAddressRedirect}
                                     className="flex-row items-center justify-center py-2.5 mt-2 mb-4 border border-dashed border-slate-200 rounded-xl active:bg-slate-50"

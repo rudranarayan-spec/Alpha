@@ -1,6 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/client";
 import Constants from "expo-constants";
+import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
@@ -65,19 +66,23 @@ export function usePushNotifications() {
 
         if (pushToken) {
           console.log("\n===========================================");
-          console.log("EXPO PUSH TOKEN:");
-          console.log(pushToken);
+          console.log("EXPO PUSH TOKEN:", pushToken);
           console.log("===========================================\n");
 
-          // 6. Register Token with Backend API
+          // Resolve precise Device Name (e.g. "Pixel 6a", "John's iPhone")
+          const deviceName =
+            Device.modelName || Device.deviceName || `${Platform.OS} Device`;
+
+          // 6. Register Token with Backend API matching exact schema
           const response = await api.post("/notifications/register-token", {
-            token: pushToken,
+            push_token: pushToken,
             platform: Platform.OS,
+            device_name: deviceName,
           });
 
           if (response.status === 200 || response.status === 201) {
             console.log(
-              "[Push] Device token successfully bound to user cloud profile.",
+              "[Push] Device token successfully bound to user profile.",
             );
           } else {
             console.error(

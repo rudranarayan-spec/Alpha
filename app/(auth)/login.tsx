@@ -18,7 +18,6 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
-
 export default function LoginScreen() {
     const { width, height } = useWindowDimensions();
     const insets = useSafeAreaInsets();
@@ -36,7 +35,10 @@ export default function LoginScreen() {
     const handleLogin = async () => {
         if (isSigningIn) return;
 
-        if (!email.trim() || !password.trim()) {
+        const cleanEmail = email.trim();
+        const cleanPassword = password; // Do not trim if passwords accept whitespace
+
+        if (!cleanEmail || !cleanPassword) {
             setErrorMessage("Please enter both email and password.");
             if (Platform.OS !== "web") {
                 await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -51,10 +53,9 @@ export default function LoginScreen() {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
 
-            // Axios automatically prepends API_CONFIG.BASE_URL -> http://192.168.29.213:8080/api/v1/login
             const response = await api.post("/login", {
-                email: email.trim(),
-                password,
+                email: cleanEmail,
+                password: cleanPassword,
             });
 
             const data = response.data;
@@ -80,7 +81,6 @@ export default function LoginScreen() {
         } catch (error: any) {
             console.error("Login Error:", error);
 
-            // Handle Axios errors cleanly
             const serverMessage = error.response?.data?.message;
             setErrorMessage(
                 serverMessage || "Network error. Please check your connection."
@@ -156,17 +156,17 @@ export default function LoginScreen() {
                                     }`}
                             >
                                 <View className="h-12 w-12 items-center justify-center rounded-[18px] border border-white/15 bg-white/10">
-                                    <Text className="text-lg font-black tracking-tight text-white">
-                                        HX
+                                    <Text className="text-xl font-black tracking-tight text-white">
+                                        A
                                     </Text>
                                 </View>
 
                                 <View className="ml-3">
                                     <Text className="text-xl font-black tracking-tight text-white">
-                                        House<Text className="text-[#66A6FF]">Xpertz</Text>
+                                        Alpha<Text className="text-[#66A6FF]">Services</Text>
                                     </Text>
                                     <Text className="mt-0.5 text-[9px] font-bold uppercase tracking-[2px] text-white/50">
-                                        Home Services
+                                        Enterprise Platform
                                     </Text>
                                 </View>
                             </View>
@@ -179,7 +179,7 @@ export default function LoginScreen() {
                                         : "text-center text-3xl leading-10"
                                     }`}
                             >
-                                Your home,{"\n"}expertly handled.
+                                Powered by{"\n"}Alpha Performance.
                             </Text>
 
                             <Text
@@ -188,7 +188,7 @@ export default function LoginScreen() {
                                     : "max-w-[300px] text-center text-xs"
                                     }`}
                             >
-                                Sign in to manage your bookings, service history, and saved addresses.
+                                Sign in to access your dashboard, operations, and account settings.
                             </Text>
                         </MotiView>
 
@@ -274,6 +274,7 @@ export default function LoginScreen() {
                                         onChangeText={setPassword}
                                         secureTextEntry={!showPassword}
                                         autoCapitalize="none"
+                                        autoCorrect={false}
                                     />
                                     <Pressable onPress={() => setShowPassword(!showPassword)}>
                                         <Ionicons
@@ -330,7 +331,7 @@ export default function LoginScreen() {
                             </Pressable>
 
                             <Text className="mt-6 text-center text-[10px] font-medium leading-4 text-slate-400">
-                                By continuing, you agree to the HouseXpertz Terms of Service and Privacy Policy.
+                                By continuing, you agree to the Alpha Terms of Service and Privacy Policy.
                             </Text>
                         </MotiView>
                     </View>

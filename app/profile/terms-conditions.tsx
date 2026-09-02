@@ -50,39 +50,59 @@ export default function TermsConditionsScreen() {
             Terms of Service
           </Text>
           <Text className="text-slate-400 text-xs font-medium mb-6">
-            Last Updated: July 2026
+            Last Updated: September 2026
           </Text>
 
           <Text className="text-slate-600 text-sm font-medium leading-6 mb-6">
-            By accessing our system frameworks or initiating operational checkout paths, you agree to comply with and be bound entirely by the following structural rules.
+            Welcome to Alpha. By browsing, placing orders, or purchasing products on our platform, you agree to comply with and be bound by the following Terms & Conditions.
           </Text>
 
+          {/* SECTION 1 */}
           <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
-            1. Account Maintenance Rules
+            1. Account Registration & Security
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-            Users must submit entirely accurate data when configuring profile keys. You are fully responsible for preserving the secret state of credentials and active system sessions on your hardware engines.
+            Users must provide accurate details when configuring their Alpha profile. You are responsible for preserving account credentials and managing access to your device.
           </Text>
 
+          {/* SECTION 2 */}
           <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
-            2. Service Booking & Cancellations
+            2. Product Catalog & Quality Standards
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-            Appointments and field technician operations remain bound to local availability matrices. Cancellations initiated less than 2 hours before an operations slot may incur standard system routing fee adjustments.
+            Alpha offers items across distinct catalog categories including Spices (such as Haldi Powder, Mirchi Powder, and whole spices) and Eco-Friendly Products (such as eco bags, polythene alternatives, butter paper, and biodegradable plates). Weights, colors, and packaging design may vary slightly based on harvest batch or manufacturing runs.
           </Text>
 
+          {/* SECTION 3 */}
           <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
-            3. Liability Limitations
+            3. Pricing, Orders & Payments
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-            Our system operators accept no liability for network disconnections, unpredicted environment structural variations, or service delays caused directly by regional logistical anomalies.
+            All prices are listed in INR (₹) and are inclusive of applicable taxes unless stated otherwise. Alpha reserves the right to modify prices or cancel orders affected by technical pricing errors or unexpected stock shortages prior to dispatch.
           </Text>
 
+          {/* SECTION 4 */}
           <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
-            4. Fair Platform Usage
+            4. Shipping & Delivery
+          </Text>
+          <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
+            Deliveries are made to the address provided during checkout. Estimated delivery dates are non-binding projections and may vary due to regional logistics, weather conditions, or courier transit times.
+          </Text>
+
+          {/* SECTION 5 */}
+          <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
+            5. Returns, Replacement & Refunds
+          </Text>
+          <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
+            Due to hygiene and safety regulations, edible items (spices) are non-returnable once the safety seal is broken unless delivered damaged or expired. Eco-Friendly products can be replaced or refunded if damaged, defective, or incorrect items were received, provided a claim is raised within 48 hours of delivery.
+          </Text>
+
+          {/* SECTION 6 */}
+          <Text className="text-[#0B132B] text-base font-black tracking-tight mb-2">
+            6. Fair Platform Usage
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-2">
-            Any attempt to exploit transaction gateways, submit false reviews, bypass booking mechanics, or engage with engineering personnel off-platform will trigger immediate, permanent profile suspension.
+            Any attempt to manipulate coupon codes, submit fraudulent payment claims, create fake accounts, or exploit application workflows will result in immediate, permanent account suspension on Alpha.
           </Text>
         </View>
       </ScrollView>

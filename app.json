@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.housexpertz.app"
     },
     "android": {
-      "package": "com.housexpertz.app",
+      "package": "com.alpha.app",
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
