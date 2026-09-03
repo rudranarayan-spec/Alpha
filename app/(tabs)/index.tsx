@@ -1,404 +1,266 @@
+import { useCartStore } from '@/store/cart.store';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { MotiText, MotiView } from 'moti';
 import React, { useState } from 'react';
 import {
-  Dimensions,
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   Text,
-  TextInput,
-  View,
+  useWindowDimensions,
+  View
 } from 'react-native';
 
-import { useCartStore } from '@/store/cart.store';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-// Category Metadata
-const CATEGORY_TABS = [
-  { id: 'all', label: 'All Essentials', icon: 'grid-outline' },
-  { id: 'spices', label: 'Spices', icon: 'nutrition-outline' },
-  { id: 'bio', label: 'Biodegradable Products', icon: 'leaf-outline' },
-];
-
-// Feature Guarantees Component Data
-const QUICK_FEATURES = [
-  { id: 'f1', title: '100% Pure', desc: 'Zero Adulteration', icon: 'shield-checkmark-sharp', color: '#10B981' },
-  { id: 'f2', title: 'Eco Packaging', desc: '100% Compostable', icon: 'leaf-sharp', color: '#059669' },
-  { id: 'f3', title: 'Fast Delivery', desc: 'Direct to Odisha', icon: 'flash-sharp', color: '#F59E0B' },
-];
-
-// Curated Showcase Product Data (For Exhibition & Quality Assurance)
-const MOCK_PRODUCTS = [
-  {
-    id: 'sp-1',
-    name: 'Pure Turmeric (Haldi) Powder',
-    categoryKey: 'spices',
-    categoryLabel: 'Spices',
-    weight: '500g Pack',
-    rating: 4.9,
-    reviews: 128,
-    badge: 'Best Seller',
-    image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&q=80',
-  },
-  {
-    id: 'bio-1',
-    name: 'Biodegradable Carrier Bags',
-    categoryKey: 'bio',
-    categoryLabel: 'Biodegradable',
-    weight: 'Pack of 50',
-    rating: 4.8,
-    reviews: 94,
-    badge: '100% Eco',
-    image: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=500&q=80',
-  },
-  {
-    id: 'sp-2',
-    name: 'Premium Red Chilli (Mirchi) Powder',
-    categoryKey: 'spices',
-    categoryLabel: 'Spices',
-    weight: '500g Pack',
-    rating: 4.9,
-    reviews: 210,
-    badge: 'Hot',
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&q=80',
-  },
-  {
-    id: 'bio-2',
-    name: 'Food-Grade Butter Paper Roll',
-    categoryKey: 'bio',
-    categoryLabel: 'Biodegradable',
-    weight: '20 Meters Roll',
-    rating: 4.7,
-    reviews: 56,
-    badge: 'Non-Toxic',
-    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=500&q=80',
-  },
-  {
-    id: 'bio-3',
-    name: 'Areca Palm Leaf Plates',
-    categoryKey: 'bio',
-    categoryLabel: 'Biodegradable',
-    weight: 'Pack of 25 (10-inch)',
-    rating: 4.9,
-    reviews: 312,
-    badge: 'Compostable',
-    image: 'https://images.unsplash.com/photo-1605371924599-2d0365da1ae0?w=500&q=80',
-  },
-  {
-    id: 'sp-3',
-    name: 'Organic Coriander (Dhania) Powder',
-    categoryKey: 'spices',
-    categoryLabel: 'Spices',
-    weight: '500g Pack',
-    rating: 4.8,
-    reviews: 87,
-    badge: 'Farm Fresh',
-    image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=500&q=80',
-  },
-];
-
-// Promotional Mock Banners
-const MOCK_PROMOS = [
-  {
-    id: 'p1',
-    title: 'Pure Farm Spices',
-    subtitle: 'Zero Adulteration Haldi & Mirchi sourced straight from authentic farms.',
-    tag: 'ORGANIC GUARANTEE',
-    bg: 'bg-[#0B132B]',
-    accent: 'text-amber-400',
-    buttonBg: 'bg-amber-400',
-    buttonText: 'text-[#0B132B]',
-  },
-  {
-    id: 'p2',
-    title: 'Sustainable Packaging',
-    subtitle: 'Eco Bags, Butter Paper & Palm Plates engineered for zero environmental footprint.',
-    tag: 'PLASTIC FREE',
-    bg: 'bg-emerald-950',
-    accent: 'text-emerald-300',
-    buttonBg: 'bg-emerald-400',
-    buttonText: 'text-emerald-950',
-  },
-];
-
-interface AlphaHomeScreenProps {
-  onNavigateToCart?: () => void;
+interface Product {
+  id: string;
+  name: string;
+  packSize: string;
+  price: number;
+  image: string;
 }
 
-export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenProps) {
+interface OrderItem {
+  id: string;
+  orderNumber: string;
+  date: string;
+  status: string;
+  amount: number;
+}
+
+const MOCK_PRODUCTS: Product[] = [
+  {
+    id: '1',
+    name: 'Organic Premium Honey',
+    packSize: '500g',
+    price: 349.00,
+    image: 'https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&w=300&q=80',
+  },
+  {
+    id: '2',
+    name: 'Artisan Cold-Pressed Oil',
+    packSize: '1L',
+    price: 599.00,
+    image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&q=80',
+  },
+  {
+    id: '3',
+    name: 'Handcrafted Cashew Butter',
+    packSize: '250g',
+    price: 299.00,
+    image: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&w=300&q=80',
+  },
+  {
+    id: '4',
+    name: 'Single-Origin Arabica Coffee',
+    packSize: '250g',
+    price: 499.00,
+    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=300&q=80',
+  },
+];
+
+const MOCK_RECENT_ORDERS: OrderItem[] = [
+  {
+    id: '101',
+    orderNumber: 'ORD-2026-9012',
+    date: '02 Sep 2026',
+    status: 'Delivered',
+    amount: 948.00,
+  },
+  {
+    id: '102',
+    orderNumber: 'ORD-2026-8834',
+    date: '28 Aug 2026',
+    status: 'Pending',
+    amount: 599.00,
+  },
+  {
+    id: '103',
+    orderNumber: 'ORD-2026-7721',
+    date: '24 Aug 2026',
+    status: 'Processing',
+    amount: 1298.00,
+  },
+];
+
+export default function HomeScreen() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+  const contentMaxWidth = isTablet ? 720 : width;
 
-  // Actual Cart Store integration for live badge count
-  const cartItemsMap = useCartStore((state) => state.items);
-  const cartCount = Object.values(cartItemsMap).reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [totalOrders] = useState(28);
+  const [pendingAmount] = useState(1897.50);
 
-  // Filter showcase items based on active Tab + Search input
-  const filteredProducts = MOCK_PRODUCTS.filter((item) => {
-    const matchesCategory =
-      selectedCategory === 'all' || item.categoryKey === selectedCategory;
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const totalCartItems = useCartStore((state) => state.getTotalItemsCount());
 
-  const handleCartPress = () => {
-    if (onNavigateToCart) {
-      onNavigateToCart();
-    } else {
-      router.push('/cart' as any);
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1000);
+  };
+
+  const getStatusBadge = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === 'delivered' || s === 'success') {
+      return (
+        <View className="bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
+          <Text className="text-emerald-700 text-[10px] font-bold uppercase tracking-wider">{status}</Text>
+        </View>
+      );
+    } else if (s === 'pending') {
+      return (
+        <View className="bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200">
+          <Text className="text-amber-700 text-[10px] font-bold uppercase tracking-wider">{status}</Text>
+        </View>
+      );
     }
+    return (
+      <View className="bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-200">
+        <Text className="text-blue-700 text-[10px] font-bold uppercase tracking-wider">{status}</Text>
+      </View>
+    );
   };
 
   return (
-    <View className="flex-1 bg-slate-100">
-      <StatusBar
-        style="light"
-        backgroundColor="#0B132B"
-        translucent={false}
-      />
-      <View className="w-full h-full bg-slate-100 relative">
-        {/* 1. TOP NAVBAR */}
-        <View className="bg-[#0B132B] pt-14 pb-4 px-5 md:px-12 z-10">
-          <View className="flex-row justify-between items-center max-w-7xl mx-auto w-full">
-            <MotiView
-              from={{ opacity: 0, translateX: -15 }}
-              animate={{ opacity: 1, translateX: 0 }}
+    <View className="flex-1 bg-slate-50">
+      <StatusBar style="light" backgroundColor="#0B132B" />
+
+      {/* Header */}
+      <View className="bg-[#0B132B] pt-14 pb-5 px-5 border-b border-slate-800">
+        <View style={{ width: '100%', maxWidth: contentMaxWidth }} className="self-center flex-row items-center justify-between">
+          <View>
+            <Text className="text-slate-400 text-[11px] font-medium tracking-tight">Welcome back,</Text>
+            <Text className="text-white text-lg font-black tracking-tight">Rudranarayan Sahu</Text>
+          </View>
+          <View className="flex-row items-center space-x-3">
+
+            {/* Cart Icon Button with Dynamic Badge */}
+            <Pressable
+              onPress={() => router.push('/cart' as any)}
+              className="w-10 h-10 rounded-xl bg-slate-800 items-center justify-center border border-slate-700 active:bg-slate-700 relative"
             >
-              <View className="flex-row items-center">
-                <Text className="text-white text-2xl font-black tracking-tight">
-                  Alpha
-                </Text>
-                <View className="w-2.5 h-2.5 rounded-full bg-emerald-400 ml-1.5 mt-2" />
-              </View>
+              <Ionicons name="cart-outline" size={20} color="#FFFFFF" />
 
-              {/* LOCATION SET TO BHUBANESWAR, ODISHA */}
-              <Pressable className="flex-row items-center mt-1 bg-white/5 py-1 px-2.5 rounded-full border border-white/10 self-start">
-                <Ionicons name="location-sharp" size={13} color="#10B981" />
-                <Text className="text-slate-200 text-xs font-semibold ml-1.5">
-                  Bhubaneswar, Odisha
-                </Text>
-                <Ionicons name="chevron-down" size={12} color="#94A3B8" className="ml-1" />
-              </Pressable>
-            </MotiView>
+              {totalCartItems > 0 && (
+                <View className="absolute -top-1.5 -right-1.5 bg-emerald-500 min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center border-2 border-[#0B132B]">
+                  <Text className="text-white text-[9px] font-black">
+                    {totalCartItems > 99 ? '99+' : totalCartItems}
+                  </Text>
+                </View>
+              )}
+            </Pressable>
 
-            {/* HEADER ACTIONS (Live Cart Badge Connected) */}
-            <View className="flex-row items-center">
-              <Pressable
-                onPress={handleCartPress}
-                className="bg-emerald-600 px-4 py-2.5 rounded-2xl flex-row items-center border border-emerald-500 active:scale-95 shadow-md shadow-emerald-900/40"
-              >
-                <Ionicons name="bag-handle-outline" size={20} color="white" />
-                {cartCount > 0 && (
-                  <View className="bg-white px-2 py-0.5 rounded-full ml-2">
-                    <Text className="text-[#0B132B] text-xs font-black">
-                      {cartCount}
-                    </Text>
-                  </View>
-                )}
-              </Pressable>
-            </View>
+            <Pressable
+              onPress={() => router.push('/profile' as any)}
+              className="w-10 h-10 rounded-xl bg-slate-800 items-center justify-center border border-slate-700 active:bg-slate-700 ml-3"
+            >
+              <Ionicons name="person-outline" size={19} color="#FFFFFF" />
+            </Pressable>
           </View>
         </View>
-
-        {/* SCROLLABLE CONTENT */}
-        <ScrollView
-          className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 60 }}
-        >
-          {/* HERO HEADER & SEARCH BANNER */}
-          <View className="bg-[#0B132B] pb-8 px-5 md:px-12 md:pb-12 rounded-b-[36px] shadow-2xl shadow-slate-900/30">
-            <View className="max-w-7xl mx-auto w-full">
-              <MotiText
-                from={{ opacity: 0, translateY: 10 }}
-                animate={{ opacity: 1, translateY: 0 }}
-                className="text-white text-3xl md:text-5xl font-black tracking-tight mb-5 leading-tight pt-1"
-              >
-                Organic Spices &{"\n"}
-                <Text className="text-emerald-400">Eco Essentials</Text>
-              </MotiText>
-
-              {/* SEARCH BAR */}
-              <View className="flex-row items-center bg-slate-900/90 border border-slate-700/60 h-14 rounded-2xl px-4 md:max-w-2xl shadow-inner">
-                <Ionicons name="search-sharp" size={20} color="#94A3B8" />
-                <TextInput
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  placeholder="Explore Haldi, Mirchi, Eco Bags, Plates..."
-                  placeholderTextColor="#64748B"
-                  className="flex-1 ml-3 font-semibold text-white text-sm"
-                />
-                {searchQuery.length > 0 ? (
-                  <Pressable onPress={() => setSearchQuery('')}>
-                    <Ionicons name="close-circle" size={18} color="#94A3B8" />
-                  </Pressable>
-                ) : (
-                  <View className="bg-white/10 p-2 rounded-xl">
-                    <Ionicons name="options-outline" size={16} color="white" />
-                  </View>
-                )}
-              </View>
-            </View>
-          </View>
-
-          {/* MAIN CONTAINER STREAM */}
-          <View className="w-full max-w-7xl mx-auto px-5 md:px-12 mt-6">
-
-            {/* PROMOTIONAL SLIDER */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-6"
-              decelerationRate="fast"
-              snapToInterval={316}
-            >
-              {MOCK_PROMOS.map((promo) => (
-                <View
-                  key={promo.id}
-                  className={`${promo.bg} w-[300px] md:w-[420px] p-6 rounded-3xl mr-4 justify-between border border-white/10 shadow-lg`}
-                >
-                  <View className="self-start bg-white/10 px-3 py-1 rounded-full border border-white/10 mb-4">
-                    <Text className={`text-[10px] font-black uppercase tracking-widest ${promo.accent}`}>
-                      {promo.tag}
-                    </Text>
-                  </View>
-                  <View>
-                    <Text className="text-white text-2xl font-black tracking-tight mb-1">
-                      {promo.title}
-                    </Text>
-                    <Text className="text-slate-300 text-xs font-medium mb-5 leading-5">
-                      {promo.subtitle}
-                    </Text>
-                  </View>
-                  <View className={`${promo.buttonBg} py-2.5 px-5 rounded-xl self-start`}>
-                    <Text className={`${promo.buttonText} font-black text-xs`}>
-                      Certified Quality Showcase
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-
-            {/* QUICK FEATURE GUARANTEES STRIP */}
-            <View className="bg-white p-4 rounded-3xl border border-slate-200/80 mb-8 shadow-sm flex-row justify-between items-center">
-              {QUICK_FEATURES.map((feat, index) => (
-                <View key={feat.id} className={`flex-1 items-center px-1 ${index !== QUICK_FEATURES.length - 1 ? 'border-r border-slate-100' : ''}`}>
-                  <View className="p-2 rounded-2xl bg-slate-50 mb-1.5">
-                    <Ionicons name={feat.icon as any} size={20} color={feat.color} />
-                  </View>
-                  <Text className="text-[#0B132B] font-extrabold text-xs text-center">{feat.title}</Text>
-                  <Text className="text-slate-400 text-[10px] font-medium text-center">{feat.desc}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* NEW PREMIUM BRAND PROMISE BANNER */}
-            <View className="bg-gradient-to-r bg-[#0B132B] rounded-3xl p-6 mb-8 border border-slate-800 shadow-xl overflow-hidden relative">
-              <View className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl" />
-              <View className="flex-row items-center mb-3">
-                <View className="w-8 h-8 rounded-full bg-emerald-500/20 items-center justify-center mr-3 border border-emerald-500/30">
-                  <Ionicons name="leaf" size={16} color="#10B981" />
-                </View>
-                <Text className="text-emerald-400 text-xs font-black tracking-widest uppercase">
-                  Our Promise to Odisha & Beyond
-                </Text>
-              </View>
-              <Text className="text-white text-lg md:text-xl font-black tracking-tight mb-2">
-                Pure Ingredients, Zero Compromise on Health
-              </Text>
-              <Text className="text-slate-300 text-xs leading-5 max-w-2xl">
-                Every spice we curate undergoes strict quality testing for zero chemical adulteration. Our biodegradable range guarantees complete compostability, protecting local soil and sustainable ecosystems.
-              </Text>
-            </View>
-
-          
-
-            {/* PRODUCT SHOWCASE CATALOG (Exhibition Only - No Direct Purchase/Cart Buttons) */}
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-[#0B132B] text-xl font-black tracking-tight">
-                Quality Showcase Catalog
-              </Text>
-              <Text className="text-emerald-600 text-xs font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                {filteredProducts.length} Items Displayed
-              </Text>
-            </View>
-
-            {filteredProducts.length === 0 ? (
-              <View className="bg-white p-8 rounded-3xl border border-slate-200/80 items-center justify-center my-4">
-                <Ionicons name="search-outline" size={36} color="#94A3B8" />
-                <Text className="text-[#0B132B] font-bold text-base mt-2">
-                  No showcase items found
-                </Text>
-                <Text className="text-slate-400 text-xs mt-1 text-center">
-                  Try filtering by another category or searching different keywords.
-                </Text>
-              </View>
-            ) : (
-              <View className="flex-row flex-wrap justify-between gap-y-4">
-                {filteredProducts.map((product) => (
-                  <View
-                    key={product.id}
-                    className="w-[48%] md:w-[31%] bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm justify-between"
-                  >
-                    {/* PRODUCT IMAGE & BADGE */}
-                    <View className="relative">
-                      <Image
-                        source={{ uri: product.image }}
-                        className="w-full h-40 bg-slate-100"
-                        resizeMode="cover"
-                      />
-                      <View className="absolute top-2.5 left-2.5 bg-[#0B132B]/90 px-2.5 py-1 rounded-lg border border-white/10">
-                        <Text className="text-emerald-400 text-[9px] font-black uppercase">
-                          {product.badge}
-                        </Text>
-                      </View>
-                      <View className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-lg flex-row items-center border border-slate-200/80 shadow-sm">
-                        <Ionicons name="star" size={10} color="#F59E0B" />
-                        <Text className="text-slate-900 font-bold text-[10px] ml-1">
-                          {product.rating}
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* PRODUCT DETAILS (Exhibition view showing purity specs instead of prices/cart buttons) */}
-                    <View className="p-3.5">
-                      <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">
-                        {product.categoryLabel}
-                      </Text>
-                      <Text
-                        className="text-[#0B132B] font-black text-sm tracking-tight mb-0.5"
-                        numberOfLines={1}
-                      >
-                        {product.name}
-                      </Text>
-                      <Text className="text-slate-500 text-xs font-medium mb-3">
-                        {product.weight}
-                      </Text>
-
-                      <View className="bg-slate-50 border border-slate-100 rounded-xl py-1.5 px-2.5 flex-row items-center justify-center">
-                        <Ionicons name="shield-checkmark" size={12} color="#10B981" />
-                        <Text className="text-slate-600 text-[10px] font-bold ml-1.5">
-                          Verified Pure & Safe
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-        </ScrollView>
       </View>
+
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#059669" />
+        }
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <View style={{ width: '100%', maxWidth: contentMaxWidth }} className="self-center px-4 pt-5">
+
+          {/* Key Metrics Dashboard Card */}
+          <View className="bg-[#0B132B] rounded-3xl p-5 shadow-lg relative overflow-hidden mb-6">
+            <View className="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl" />
+            <Text className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3">
+              Overview Summary
+            </Text>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1 pr-3 border-r border-slate-800">
+                <Text className="text-slate-400 text-xs font-semibold mb-1">Total Orders</Text>
+                <Text className="text-white text-2xl font-black tracking-tight">{totalOrders}</Text>
+              </View>
+              <View className="flex-1 pl-4">
+                <Text className="text-slate-400 text-xs font-semibold mb-1">Pending Amount</Text>
+                <Text className="text-emerald-400 text-2xl font-black tracking-tight">₹{pendingAmount.toFixed(2)}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Recent Orders Section */}
+          <View className="flex-row items-center justify-between mb-3 px-1">
+            <Text className="text-slate-900 text-xs font-black uppercase tracking-wider">
+              Recent Orders
+            </Text>
+            <Pressable onPress={() => router.push('/(tabs)/orders' as any)}>
+              <Text className="text-emerald-700 text-xs font-bold">View All</Text>
+            </Pressable>
+          </View>
+
+          <View className="bg-white rounded-2xl p-2 border border-slate-200/80 shadow-xs mb-6">
+            {MOCK_RECENT_ORDERS.map((order, index) => (
+              <Pressable
+                key={order.id}
+                onPress={() => router.push('/(tabs)/orders' as any)}
+                className={`flex-row items-center justify-between p-3 ${index !== MOCK_RECENT_ORDERS.length - 1 ? 'border-b border-slate-100' : ''
+                  }`}
+              >
+                <View className="flex-row items-center flex-1 mr-3">
+                  <View className="w-9 h-9 rounded-xl bg-slate-100 items-center justify-center mr-3 border border-slate-200">
+                    <Ionicons name="receipt-outline" size={16} color="#0F172A" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 text-xs font-bold">{order.orderNumber}</Text>
+                    <Text className="text-slate-400 text-[11px] mt-0.5">{order.date}</Text>
+                  </View>
+                </View>
+                <View className="items-end">
+                  <Text className="text-emerald-700 text-xs font-black mb-1">₹{order.amount.toFixed(2)}</Text>
+                  {getStatusBadge(order.status)}
+                </View>
+              </Pressable>
+            ))}
+          </View>
+
+          {/* Catalog Showcase */}
+          <View className="flex-row items-center justify-between mb-3 px-1">
+            <Text className="text-slate-900 text-xs font-black uppercase tracking-wider">
+              Featured Catalog
+            </Text>
+            <Pressable onPress={() => router.replace('/(tabs)/explore' as any)}>
+              <Text className="text-emerald-700 text-xs font-bold">Explore More</Text>
+            </Pressable>
+          </View>
+
+          <View className="flex-row flex-wrap justify-between">
+            {MOCK_PRODUCTS.map((product) => (
+              <View
+                key={product.id}
+                className="w-[48%] bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs mb-4"
+              >
+                <Image
+                  source={{ uri: product.image }}
+                  className="w-full h-36 rounded-xl bg-slate-100 mb-3"
+                  resizeMode="cover"
+                />
+                <Text numberOfLines={1} className="text-slate-900 text-xs font-bold tracking-tight mb-1">
+                  {product.name}
+                </Text>
+                <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-slate-100">
+                  <Text className="text-slate-400 text-[11px] font-medium">Pack size</Text>
+                  <Text className="text-slate-700 text-xs font-semibold">{product.packSize}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+        </View>
+      </ScrollView>
     </View>
   );
 }
