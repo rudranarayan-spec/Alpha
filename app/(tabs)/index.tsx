@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { MotiText, MotiView } from 'moti';
 import React, { useState } from 'react';
 import {
@@ -7,11 +8,12 @@ import {
   Image,
   Pressable,
   ScrollView,
-  StatusBar,
   Text,
   TextInput,
   View,
 } from 'react-native';
+
+import { useCartStore } from '@/store/cart.store';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -29,14 +31,13 @@ const QUICK_FEATURES = [
   { id: 'f3', title: 'Fast Delivery', desc: 'Direct to Odisha', icon: 'flash-sharp', color: '#F59E0B' },
 ];
 
-// Curated Mock Product Data
+// Curated Showcase Product Data (For Exhibition & Quality Assurance)
 const MOCK_PRODUCTS = [
   {
     id: 'sp-1',
     name: 'Pure Turmeric (Haldi) Powder',
     categoryKey: 'spices',
     categoryLabel: 'Spices',
-    price: 140,
     weight: '500g Pack',
     rating: 4.9,
     reviews: 128,
@@ -48,7 +49,6 @@ const MOCK_PRODUCTS = [
     name: 'Biodegradable Carrier Bags',
     categoryKey: 'bio',
     categoryLabel: 'Biodegradable',
-    price: 299,
     weight: 'Pack of 50',
     rating: 4.8,
     reviews: 94,
@@ -60,7 +60,6 @@ const MOCK_PRODUCTS = [
     name: 'Premium Red Chilli (Mirchi) Powder',
     categoryKey: 'spices',
     categoryLabel: 'Spices',
-    price: 180,
     weight: '500g Pack',
     rating: 4.9,
     reviews: 210,
@@ -72,7 +71,6 @@ const MOCK_PRODUCTS = [
     name: 'Food-Grade Butter Paper Roll',
     categoryKey: 'bio',
     categoryLabel: 'Biodegradable',
-    price: 199,
     weight: '20 Meters Roll',
     rating: 4.7,
     reviews: 56,
@@ -84,7 +82,6 @@ const MOCK_PRODUCTS = [
     name: 'Areca Palm Leaf Plates',
     categoryKey: 'bio',
     categoryLabel: 'Biodegradable',
-    price: 349,
     weight: 'Pack of 25 (10-inch)',
     rating: 4.9,
     reviews: 312,
@@ -96,7 +93,6 @@ const MOCK_PRODUCTS = [
     name: 'Organic Coriander (Dhania) Powder',
     categoryKey: 'spices',
     categoryLabel: 'Spices',
-    price: 130,
     weight: '500g Pack',
     rating: 4.8,
     reviews: 87,
@@ -110,7 +106,7 @@ const MOCK_PROMOS = [
   {
     id: 'p1',
     title: 'Pure Farm Spices',
-    subtitle: 'Zero Adulteration Haldi & Mirchi',
+    subtitle: 'Zero Adulteration Haldi & Mirchi sourced straight from authentic farms.',
     tag: 'ORGANIC GUARANTEE',
     bg: 'bg-[#0B132B]',
     accent: 'text-amber-400',
@@ -120,7 +116,7 @@ const MOCK_PROMOS = [
   {
     id: 'p2',
     title: 'Sustainable Packaging',
-    subtitle: 'Eco Bags, Butter Paper & Palm Plates',
+    subtitle: 'Eco Bags, Butter Paper & Palm Plates engineered for zero environmental footprint.',
     tag: 'PLASTIC FREE',
     bg: 'bg-emerald-950',
     accent: 'text-emerald-300',
@@ -137,9 +133,15 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [cartCount, setCartCount] = useState<number>(3);
 
-  // Filter items based on active Tab + Search input
+  // Actual Cart Store integration for live badge count
+  const cartItemsMap = useCartStore((state) => state.items);
+  const cartCount = Object.values(cartItemsMap).reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
+  // Filter showcase items based on active Tab + Search input
   const filteredProducts = MOCK_PRODUCTS.filter((item) => {
     const matchesCategory =
       selectedCategory === 'all' || item.categoryKey === selectedCategory;
@@ -149,22 +151,21 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
     return matchesCategory && matchesSearch;
   });
 
-  const handleAddToCart = () => {
-    setCartCount((prev) => prev + 1);
-  };
-
   const handleCartPress = () => {
     if (onNavigateToCart) {
       onNavigateToCart();
     } else {
-      router.push('/cart');
+      router.push('/cart' as any);
     }
   };
 
   return (
     <View className="flex-1 bg-slate-100">
-      <StatusBar barStyle="light-content" backgroundColor="#0B132B" animated />
-
+      <StatusBar
+        style="light"
+        backgroundColor="#0B132B"
+        translucent={false}
+      />
       <View className="w-full h-full bg-slate-100 relative">
         {/* 1. TOP NAVBAR */}
         <View className="bg-[#0B132B] pt-14 pb-4 px-5 md:px-12 z-10">
@@ -190,18 +191,20 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
               </Pressable>
             </MotiView>
 
-            {/* HEADER ACTIONS (Notification Removed, Cart Retained) */}
+            {/* HEADER ACTIONS (Live Cart Badge Connected) */}
             <View className="flex-row items-center">
               <Pressable
                 onPress={handleCartPress}
                 className="bg-emerald-600 px-4 py-2.5 rounded-2xl flex-row items-center border border-emerald-500 active:scale-95 shadow-md shadow-emerald-900/40"
               >
                 <Ionicons name="bag-handle-outline" size={20} color="white" />
-                <View className="bg-white px-2 py-0.5 rounded-full ml-2">
-                  <Text className="text-[#0B132B] text-xs font-black">
-                    {cartCount}
-                  </Text>
-                </View>
+                {cartCount > 0 && (
+                  <View className="bg-white px-2 py-0.5 rounded-full ml-2">
+                    <Text className="text-[#0B132B] text-xs font-black">
+                      {cartCount}
+                    </Text>
+                  </View>
+                )}
               </Pressable>
             </View>
           </View>
@@ -231,7 +234,7 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  placeholder="Search Haldi, Mirchi, Eco Bags, Plates..."
+                  placeholder="Explore Haldi, Mirchi, Eco Bags, Plates..."
                   placeholderTextColor="#64748B"
                   className="flex-1 ml-3 font-semibold text-white text-sm"
                 />
@@ -250,7 +253,7 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
 
           {/* MAIN CONTAINER STREAM */}
           <View className="w-full max-w-7xl mx-auto px-5 md:px-12 mt-6">
-            
+
             {/* PROMOTIONAL SLIDER */}
             <ScrollView
               horizontal
@@ -277,16 +280,16 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
                       {promo.subtitle}
                     </Text>
                   </View>
-                  <Pressable className={`${promo.buttonBg} py-2.5 px-5 rounded-xl self-start active:opacity-90`}>
+                  <View className={`${promo.buttonBg} py-2.5 px-5 rounded-xl self-start`}>
                     <Text className={`${promo.buttonText} font-black text-xs`}>
-                      Explore Collection
+                      Certified Quality Showcase
                     </Text>
-                  </Pressable>
+                  </View>
                 </View>
               ))}
             </ScrollView>
 
-            {/* NEW ADDED COMPONENT: QUICK FEATURE GUARANTEES STRIP */}
+            {/* QUICK FEATURE GUARANTEES STRIP */}
             <View className="bg-white p-4 rounded-3xl border border-slate-200/80 mb-8 shadow-sm flex-row justify-between items-center">
               {QUICK_FEATURES.map((feat, index) => (
                 <View key={feat.id} className={`flex-1 items-center px-1 ${index !== QUICK_FEATURES.length - 1 ? 'border-r border-slate-100' : ''}`}>
@@ -299,49 +302,34 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
               ))}
             </View>
 
-            {/* CATEGORY SELECTION TABS */}
-            <View className="mb-6">
-              <Text className="text-[#0B132B] text-xl font-black tracking-tight mb-3.5">
-                Browse Categories
+            {/* NEW PREMIUM BRAND PROMISE BANNER */}
+            <View className="bg-gradient-to-r bg-[#0B132B] rounded-3xl p-6 mb-8 border border-slate-800 shadow-xl overflow-hidden relative">
+              <View className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl" />
+              <View className="flex-row items-center mb-3">
+                <View className="w-8 h-8 rounded-full bg-emerald-500/20 items-center justify-center mr-3 border border-emerald-500/30">
+                  <Ionicons name="leaf" size={16} color="#10B981" />
+                </View>
+                <Text className="text-emerald-400 text-xs font-black tracking-widest uppercase">
+                  Our Promise to Odisha & Beyond
+                </Text>
+              </View>
+              <Text className="text-white text-lg md:text-xl font-black tracking-tight mb-2">
+                Pure Ingredients, Zero Compromise on Health
               </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
-                {CATEGORY_TABS.map((tab) => {
-                  const isActive = selectedCategory === tab.id;
-                  return (
-                    <Pressable
-                      key={tab.id}
-                      onPress={() => setSelectedCategory(tab.id)}
-                      className={`flex-row items-center px-4 py-3 rounded-2xl mr-3 border ${
-                        isActive
-                          ? 'bg-[#0B132B] border-[#0B132B] shadow-md shadow-slate-900/20'
-                          : 'bg-white border-slate-200/80 active:bg-slate-50'
-                      }`}
-                    >
-                      <Ionicons
-                        name={tab.icon as any}
-                        size={18}
-                        color={isActive ? '#10B981' : '#64748B'}
-                      />
-                      <Text
-                        className={`ml-2 text-xs font-bold ${
-                          isActive ? 'text-white' : 'text-slate-700'
-                        }`}
-                      >
-                        {tab.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
+              <Text className="text-slate-300 text-xs leading-5 max-w-2xl">
+                Every spice we curate undergoes strict quality testing for zero chemical adulteration. Our biodegradable range guarantees complete compostability, protecting local soil and sustainable ecosystems.
+              </Text>
             </View>
 
-            {/* PRODUCT CATALOG GRID */}
+          
+
+            {/* PRODUCT SHOWCASE CATALOG (Exhibition Only - No Direct Purchase/Cart Buttons) */}
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-[#0B132B] text-xl font-black tracking-tight">
-                Featured Catalog
+                Quality Showcase Catalog
               </Text>
               <Text className="text-emerald-600 text-xs font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                {filteredProducts.length} Items Available
+                {filteredProducts.length} Items Displayed
               </Text>
             </View>
 
@@ -349,10 +337,10 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
               <View className="bg-white p-8 rounded-3xl border border-slate-200/80 items-center justify-center my-4">
                 <Ionicons name="search-outline" size={36} color="#94A3B8" />
                 <Text className="text-[#0B132B] font-bold text-base mt-2">
-                  No products found
+                  No showcase items found
                 </Text>
                 <Text className="text-slate-400 text-xs mt-1 text-center">
-                  Try searching for another keyword or category.
+                  Try filtering by another category or searching different keywords.
                 </Text>
               </View>
             ) : (
@@ -382,7 +370,7 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
                       </View>
                     </View>
 
-                    {/* PRODUCT DETAILS */}
+                    {/* PRODUCT DETAILS (Exhibition view showing purity specs instead of prices/cart buttons) */}
                     <View className="p-3.5">
                       <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">
                         {product.categoryLabel}
@@ -397,6 +385,12 @@ export default function AlphaHomeScreen({ onNavigateToCart }: AlphaHomeScreenPro
                         {product.weight}
                       </Text>
 
+                      <View className="bg-slate-50 border border-slate-100 rounded-xl py-1.5 px-2.5 flex-row items-center justify-center">
+                        <Ionicons name="shield-checkmark" size={12} color="#10B981" />
+                        <Text className="text-slate-600 text-[10px] font-bold ml-1.5">
+                          Verified Pure & Safe
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 ))}

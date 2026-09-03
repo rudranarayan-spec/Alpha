@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   StatusBar,
   Text,
@@ -40,6 +41,7 @@ export default function ProfileScreen() {
   const queryClient = useQueryClient();
 
   const isTablet = width >= 768;
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Fetch User Profile from GET baseUrl/user using Axios client & React Query
   const { data: user, isLoading, isError, refetch } = useQuery<UserProfile>({
@@ -51,6 +53,12 @@ export default function ProfileScreen() {
     },
     enabled: Boolean(token),
   });
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  };
 
   // Logout Mutation
   const logoutMutation = useMutation({
@@ -86,6 +94,14 @@ export default function ProfileScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor="#059669"
+            colors={['#059669']}
+          />
+        }
       >
         {/* HERO BRAND HEADER */}
         <View
@@ -184,7 +200,7 @@ export default function ProfileScreen() {
               bgColor="bg-emerald-50"
               title="My Orders"
               subtitle="Track order history & invoices"
-              onPress={() => router.push('/(tabs)/bookings')}
+              onPress={() => router.push('/(tabs)/orders')}
               isTablet={isTablet}
             />
             <ProfileOptionRow

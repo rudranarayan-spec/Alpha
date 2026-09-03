@@ -1,11 +1,18 @@
+import { useCartStore } from "@/store/cart.store";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Platform, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+
+  const cartItemsMap = useCartStore((state) => state.items);
+  const totalCartItemsCount = Object.values(cartItemsMap).reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -52,7 +59,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="explore"
           options={{
-            title: "Explore",
+            title: "Products",
             tabBarIcon: ({ color, focused }) => (
               <Ionicons name={focused ? "search" : "search-outline"} size={22} color={color} />
             ),
@@ -64,7 +71,21 @@ export default function TabsLayout() {
           options={{
             title: "Cart",
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons name={focused ? "cart" : "cart-outline"} size={22} color={color} />
+              <View className="relative">
+                <Ionicons
+                  name={focused ? "cart" : "cart-outline"}
+                  size={22}
+                  color={color}
+                />
+
+                {totalCartItemsCount > 0 && (
+                  <View className="absolute -top-1.5 -right-2 bg-emerald-600 min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center border-2 border-white">
+                    <Text className="text-white text-[9px] font-black text-center">
+                      {totalCartItemsCount > 99 ? '99+' : totalCartItemsCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
             ),
           }}
         />
@@ -80,10 +101,10 @@ export default function TabsLayout() {
         />
 
         <Tabs.Screen
-          name="bookings"
+          name="orders"
           options={{
             href: null,
-            title: "My Bookings",
+            title: "My Orders",
           }}
         />
       </Tabs>
