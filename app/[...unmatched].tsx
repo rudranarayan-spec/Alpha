@@ -11,54 +11,51 @@ export default function UnmatchedRouteScreen() {
   const attemptedPath = useUnstableGlobalHref();
 
   useEffect(() => {
-    /**
-     * ENTERPRISE PRODUCTION NOTE:
-     * Log this failure event to your error tracking telemetry suites 
-     * (e.g., Sentry, Firebase Crashlytics, or Datadog) to catch broken paths early.
-     */
-    console.error(`[Router Telemetry] 404 Unmatched Route Exception on path: ${attemptedPath}`);
-    
-    // Optional: Trigger a Sentry.captureMessage(`404: ${attemptedPath}`) here.
+    // console.error(`[Router Telemetry] 404 Unmatched Route Exception on path: ${attemptedPath}`);
   }, [attemptedPath]);
 
   const handleSafelyReturnHome = () => {
     // replace() instead of push() clears the broken route out of the navigation stack history
-    router.replace('/(tabs)');
+    router.replace('/(tabs)' as any);
   };
 
   return (
     <View className="flex-1 bg-[#0B132B] items-center justify-center px-6">
       
-      {/* Background Ambient Branding Element */}
-      <View className="absolute top-[-10%] right-[-10%] w-72 h-72 bg-blue-600/10 rounded-full blur-3xl" />
-      <View className="absolute bottom-[-10%] left-[-10%] w-72 h-72 bg-orange-500/5 rounded-full blur-3xl" />
+      {/* Background Ambient Glows */}
+      <View className="absolute top-[-10%] right-[-10%] w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <View className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <MotiView
-        from={{ opacity: 0, scale: 0.9 }}
+        from={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'timing', duration: 400 }}
-        className="items-center"
+        className="items-center w-full max-w-sm"
       >
-        {/* Visual Alert Icon Hub */}
-        <View className="w-24 h-24 bg-white/5 border border-white/10 rounded-[32px] items-center justify-center mb-6 shadow-2xl">
-          <Ionicons name="compass-outline" size={44} color="#3B82F6" />
+        {/* Glassmorphic Icon Hub */}
+        <View className="w-24 h-24 bg-white/5 border border-white/10 rounded-3xl items-center justify-center mb-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
+          <View className="absolute inset-0 bg-emerald-500/10" />
+          <Ionicons name="compass-outline" size={42} color="#10B981" />
         </View>
 
         {/* Informative Error Copy */}
-        <Text className="text-white text-2xl font-black tracking-tight text-center mb-2">
-          Looking for a HouseXpert?
+        <Text className="text-white text-xl font-black tracking-tight text-center mb-2">
+          Page Not Found
         </Text>
-        <Text className="text-slate-400 text-sm font-semibold text-center max-w-xs mb-8 leading-relaxed">
-          The view or action path you requested doesn't exist or may have migrated to a new section bundle.
+        <Text className="text-slate-400 text-xs font-medium text-center max-w-xs mb-6 leading-relaxed">
+          The catalog path or section you requested is currently unavailable or has been relocated.
         </Text>
 
         {/* Enterprise Technical Debug Info (Visible during staging/development) */}
         {__DEV__ && (
-          <View className="bg-slate-900/80 border border-red-500/20 rounded-2xl p-3 mb-8 w-full max-w-sm">
-            <Text className="text-red-400 text-[10px] font-black uppercase tracking-widest mb-1">
-              Dev Route Trace Exception:
-            </Text>
-            <Text className="text-slate-300 text-xs font-mono" numberOfLines={2}>
+          <View className="bg-slate-900/90 border border-emerald-500/20 rounded-2xl p-3.5 mb-6 w-full shadow-inner">
+            <View className="flex-row items-center mb-1">
+              <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />
+              <Text className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">
+                Dev Route Trace Exception
+              </Text>
+            </View>
+            <Text className="text-slate-300 text-xs font-mono bg-black/40 p-2 rounded-xl" numberOfLines={2}>
               {attemptedPath || 'Unknown path array'}
             </Text>
           </View>
@@ -67,10 +64,10 @@ export default function UnmatchedRouteScreen() {
         {/* Action Call to Action Button */}
         <Pressable 
           onPress={handleSafelyReturnHome}
-          className="bg-blue-600 px-8 py-4 rounded-2xl flex-row items-center justify-center active:scale-95 shadow-lg shadow-blue-600/20 w-full max-w-xs"
+          className="bg-emerald-600 active:bg-emerald-700 h-14 rounded-2xl flex-row items-center justify-center shadow-lg shadow-emerald-900/40 w-full border border-emerald-500/30"
         >
-          <Ionicons name="home-sharp" size={16} color="white" className="mr-2" />
-          <Text className="text-white font-black text-sm tracking-tight">Return to Dashboard</Text>
+          <Ionicons name="home-sharp" size={18} color="white" style={{ marginRight: 8 }} />
+          <Text className="text-white font-black text-xs tracking-wider uppercase">Return to Dashboard</Text>
         </Pressable>
       </MotiView>
     </View>
