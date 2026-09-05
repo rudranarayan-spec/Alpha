@@ -1,160 +1,161 @@
+import { updateUserProfile, UpdateUserProfilePayload } from '@/services/user.service';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { toast } from 'sonner-native';
 
-export default function EditProfileScreen() {
+export default function UpdateProfileScreen() {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
+    const insets = useSafeAreaInsets();
+    const params = useLocalSearchParams();
 
-    // Form States
-    const [name, setName] = useState('Karan Sharma');
-    const [email, setEmail] = useState('karan.sharma@example.com');
-    const [phone, setPhone] = useState('+91 98765 43210');
-    const [selectedAddress, setSelectedAddress] = useState('123, Premium Tower, Bandra West, Delhi');
-    const [coordinates, setCoordinates] = useState({ latitude: 19.0760, longitude: 72.8777 });
+    // Initialize local state directly from router params passed from profile screen
+    const [billingName, setBillingName] = useState((params.billing_name as string) || '');
+    const [phone, setPhone] = useState((params.phone as string) || '');
+    const [billingAddress, setBillingAddress] = useState((params.billing_address as string) || '');
 
-    const handleOpenMapPicker = () => {
-        // Enterprise Integration Node: Route the user to a modal/screen containing your Google Map API picker module
-        // This will return the exact formatted_address string and lat/lng coordinates object back
-        Alert.alert(
-            'Location Picker',
-            'Opening Google Maps integration to fetch precision coordinates...',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Simulate Pick',
-                    onPress: () => {
-                        setSelectedAddress('456, Luxury Heights, Link Road, Andheri West, Delhi');
-                        setCoordinates({ latitude: 19.1136, longitude: 72.8697 });
-                    }
-                }
-            ]
-        );
-    };
+    // Mutation for updating profile
+    const updateMutation = useMutation({
+        mutationFn: (payload: UpdateUserProfilePayload) => updateUserProfile(payload),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+            toast.success(data.message || 'Profile updated successfully');
+            router.back();
+        },
+        onError: (error: any) => {
+            const responseData = error?.response?.data;
+            if (responseData?.errors) {
+                const errorKeys = Object.keys(responseData.errors);
+                const firstErrorKey = errorKeys[0];
+                const firstErrorMessage = responseData.errors[firstErrorKey]?.[0];
+                toast.error(`${firstErrorKey}: ${firstErrorMessage}` || 'Validation error occurred.');
+            } else {
+                const errorMsg = responseData?.message || 'Failed to update profile. Please try again.';
+                toast.error(errorMsg);
+            }
+        },
+    });
 
-    const handleSaveChanges = () => {
-        setLoading(true);
+    const handleSubmit = () => {
+        if (!billingName.trim() || !phone.trim() || !billingAddress.trim()) {
+            toast.error('Please fill in all required fields');
+            return;
+        }
 
-        // Simulate network API request payload write-back sequence
-        setTimeout(() => {
-            setLoading(false);
-            Alert.alert('Success', 'Profile parameters and coordinates updated successfully.', [
-                { text: 'OK', onPress: () => router.back() }
-            ]);
-        }, 800);
+        const payload: UpdateUserProfilePayload = {
+            billing_name: billingName.trim(),
+            phone: String(phone).trim(),
+            billing_address: billingAddress.trim(),
+        };
+
+        console.log('📤 Sending Profile Update Payload:', JSON.stringify(payload, null, 2));
+
+        updateMutation.mutate(payload);
     };
 
     return (
-        <View className="flex-1 bg-white">
-            {/* 1. TOP PREMIUM HEADER */}
-            <View className="bg-[#0B132B] pt-14 pb-5 px-6 rounded-b-[32px] shadow-md flex-row items-center justify-between">
-                <View className="flex-row items-center">
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1 bg-slate-50"
+        >
+            <StatusBar style="dark" backgroundColor="#F8FAFC" />
+
+            <ScrollView
+                contentContainerStyle={{
+                    paddingHorizontal: 20,
+                    paddingTop: Math.max(insets.top + 12, 20),
+                    paddingBottom: Math.max(insets.bottom + 24, 32),
+                }}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                {/* Header Navigation Bar */}
+                <View className="flex-row items-center mb-6">
                     <Pressable
                         onPress={() => router.back()}
-                        className="w-10 h-10 bg-white/10 border border-white/10 rounded-xl items-center justify-center mr-4 active:scale-95"
+                        className="w-11 h-11 rounded-2xl bg-white border border-slate-200 items-center justify-center mr-3.5 shadow-xs active:bg-slate-100"
                     >
-                        <Ionicons name="arrow-back" size={18} color="#FFFFFF" />
+                        <Ionicons name="arrow-back" size={20} color="#0F172A" />
                     </Pressable>
-                    <Text className="text-white text-xl font-black tracking-tight">Edit Profile</Text>
+                    <View className="flex-1">
+                        <Text className="text-slate-900 text-lg font-black tracking-tight">Edit Profile</Text>
+                        <Text className="text-slate-500 text-xs font-medium">Update your billing and contact details</Text>
+                    </View>
                 </View>
 
+                {/* Form Card Container */}
+                <View className="bg-white border border-slate-200/80 rounded-3xl p-5 mb-6 shadow-sm">
+                    {/* Billing Name Field */}
+                    <View className="mb-4">
+                        <Text className="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Billing Name</Text>
+                        <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 h-14">
+                            <Ionicons name="person-outline" size={18} color="#64748B" style={{ marginRight: 10 }} />
+                            <TextInput
+                                value={billingName}
+                                onChangeText={setBillingName}
+                                placeholder="Enter full name"
+                                placeholderTextColor="#94A3B8"
+                                className="flex-1 text-slate-900 text-sm font-semibold"
+                            />
+                        </View>
+                    </View>
+
+                    {/* Phone Number Field */}
+                    <View className="mb-4">
+                        <Text className="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Phone Number</Text>
+                        <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 h-14">
+                            <Ionicons name="call-outline" size={18} color="#64748B" style={{ marginRight: 10 }} />
+                            <TextInput
+                                value={phone}
+                                onChangeText={setPhone}
+                                placeholder="Enter phone number"
+                                placeholderTextColor="#94A3B8"
+                                keyboardType="phone-pad"
+                                className="flex-1 text-slate-900 text-sm font-semibold"
+                            />
+                        </View>
+                    </View>
+
+                    {/* Billing Address Field */}
+                    <View className="mb-1">
+                        <Text className="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Billing Address</Text>
+                        <View className="flex-row items-start bg-slate-50 border border-slate-200 rounded-2xl p-4 min-h-[100px]">
+                            <Ionicons name="location-outline" size={18} color="#64748B" style={{ marginRight: 10, marginTop: 2 }} />
+                            <TextInput
+                                value={billingAddress}
+                                onChangeText={setBillingAddress}
+                                placeholder="Enter complete billing address"
+                                placeholderTextColor="#94A3B8"
+                                multiline
+                                numberOfLines={3}
+                                textAlignVertical="top"
+                                className="flex-1 text-slate-900 text-sm font-semibold pt-0"
+                            />
+                        </View>
+                    </View>
+                </View>
+
+                {/* Submit Action Button */}
                 <Pressable
-                    onPress={handleSaveChanges}
-                    disabled={loading}
-                    className="bg-blue-600 px-4 py-2 rounded-xl active:scale-95 disabled:opacity-50"
+                    onPress={handleSubmit}
+                    disabled={updateMutation.isPending}
+                    className="bg-emerald-600 active:bg-emerald-700 h-14 rounded-2xl flex-row items-center justify-center shadow-md shadow-emerald-600/20"
                 >
-                    {loading ? (
+                    {updateMutation.isPending ? (
                         <ActivityIndicator size="small" color="#FFFFFF" />
                     ) : (
-                        <Text className="text-white text-xs font-black tracking-tight">Save</Text>
+                        <>
+                            <Ionicons name="checkmark-sharp" size={18} color="white" style={{ marginRight: 8 }} />
+                            <Text className="text-white font-black text-xs tracking-wider uppercase">Save Changes</Text>
+                        </>
                     )}
                 </Pressable>
-            </View>
-
-            {/* 2. CORE PROFILE EDITABLE INPUT FIELDS */}
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="p-6">
-
-                {/* Profile Avatar Context Box */}
-                <View className="items-center mb-8">
-                    <View className="w-20 h-20 rounded-full bg-slate-100 items-center justify-center border-2 border-slate-200 relative">
-                        <Text className="text-[#0B132B] text-2xl font-black">KS</Text>
-                        <Pressable className="absolute bottom-0 right-0 bg-blue-600 w-7 h-7 rounded-full items-center justify-center border-2 border-white shadow-sm active:scale-90">
-                            <Ionicons name="camera" size={12} color="#FFFFFF" />
-                        </Pressable>
-                    </View>
-                    <Text className="text-slate-400 text-xs font-bold mt-2">Change Profile Photo</Text>
-                </View>
-
-                {/* Name Input Block */}
-                <View className="mb-5">
-                    <Text className="text-slate-400 text-xs font-black uppercase tracking-wider pl-1 mb-2">Full Name</Text>
-                    <TextInput
-                        value={name}
-                        onChangeText={setName}
-                        placeholder="Enter your name"
-                        className="bg-slate-50 border border-slate-200 rounded-2xl h-14 px-4 font-bold text-slate-800 text-sm focus:border-blue-500"
-                    />
-                </View>
-
-                {/* Email Input Block */}
-                <View className="mb-5">
-                    <Text className="text-slate-400 text-xs font-black uppercase tracking-wider pl-1 mb-2">Email Address</Text>
-                    <TextInput
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        placeholder="name@example.com"
-                        className="bg-slate-50 border border-slate-200 rounded-2xl h-14 px-4 font-bold text-slate-800 text-sm focus:border-blue-500"
-                    />
-                </View>
-
-                {/* Mobile Input Block (Read-only option matching Urban Company policy verification checks) */}
-                <View className="mb-6">
-                    <Text className="text-slate-400 text-xs font-black uppercase tracking-wider pl-1 mb-2">Verified Contact Number</Text>
-                    <View className="bg-slate-100 border border-slate-200 rounded-2xl h-14 px-4 flex-row items-center justify-between">
-                        <Text className="font-bold text-slate-500 text-sm">{phone}</Text>
-                        <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-                    </View>
-                </View>
-
-                {/* 3. PREMIUM GOOGLE MAP PLACE PICKER COMPONENT ENTRY */}
-                <View className="border-t border-slate-100 pt-5">
-                    <Text className="text-slate-400 text-xs font-black uppercase tracking-wider pl-1 mb-2">Primary Service Address</Text>
-
-                    <Pressable
-                        onPress={handleOpenMapPicker}
-                        className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-4 flex-row items-center active:bg-slate-100/70"
-                    >
-                        <View className="w-10 h-10 bg-blue-50 rounded-xl items-center justify-center mr-3.5 border border-blue-100">
-                            <Ionicons name="map-sharp" size={18} color="#2563EB" />
-                        </View>
-                        <View className="flex-1 pr-2">
-                            <Text className="text-slate-800 font-bold text-sm tracking-tight mb-0.5" numberOfLines={1}>
-                                {selectedAddress ? 'Location Selected' : 'Choose on Google Map'}
-                            </Text>
-                            <Text className="text-slate-400 text-xs font-medium" numberOfLines={2}>
-                                {selectedAddress || 'Tap to launch map location pin configuration'}
-                            </Text>
-                        </View>
-                        <Ionicons name="locate" size={18} color="#94A3B8" />
-                    </Pressable>
-
-                    {/* Coordinate Trace Preview (Helper view for debugging map coordinates) */}
-                    {selectedAddress !== '' && (
-                        <View className="mt-2.5 flex-row items-center pl-1">
-                            <View className="bg-slate-100 px-2 py-1 rounded-md flex-row items-center">
-                                <Text className="text-slate-500 text-[10px] font-mono font-bold">
-                                    LAT: {coordinates.latitude.toFixed(4)} • LNG: {coordinates.longitude.toFixed(4)}
-                                </Text>
-                            </View>
-                        </View>
-                    )}
-                </View>
-
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
-

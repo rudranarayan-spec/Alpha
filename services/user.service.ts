@@ -1,33 +1,33 @@
 import api from "@/lib/api/client";
-import { AppUser, SyncUserPayload, SyncUserResponse } from "@/types/user.types";
 
-export interface GetUserResponse {
-  success: boolean;
-  user: AppUser;
+export interface UpdateUserProfilePayload {
+  billing_name: string;
+  phone: string;
+  billing_address: string;
 }
 
-export const userService = {
-  async syncUser(payload: SyncUserPayload): Promise<SyncUserResponse> {
-    if (!payload.clerkId) {
-      throw new Error("Clerk ID is required to sync user");
-    }
+export interface UserProfileResponse {
+  status: string;
+  message: string;
+  data: {
+    id: number;
+    billing_name: string;
+    email: string;
+    phone: string;
+    email_verified_at: string | null;
+    role_id: string;
+    billing_address: string;
+    due_amount: string;
+    gst_number: string | null;
+    status: string;
+    created_at: string;
+    updated_at: string;
+  };
+}
 
-    const response = await api.post<SyncUserResponse>(
-      "/auth/sync-user",
-      payload,
-    );
-    return response.data;
-  },
-
-  async getUserByClerkId(clerkId: string): Promise<GetUserResponse> {
-    if (!clerkId) {
-      throw new Error("Clerk ID is required");
-    }
-
-    const response = await api.get<GetUserResponse>(
-      `/user/get-user/${clerkId}`,
-    );
-
-    return response.data;
-  },
+export const updateUserProfile = async (
+  payload: UpdateUserProfilePayload,
+): Promise<UserProfileResponse> => {
+  const response = await api.put<UserProfileResponse>("/user-update", payload);
+  return response.data;
 };

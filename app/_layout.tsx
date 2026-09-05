@@ -3,7 +3,9 @@ import * as Notifications from "expo-notifications";
 import { Redirect, Stack, useSegments } from "expo-router";
 import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler"; // 1. Import GestureHandler
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Toaster } from "sonner-native"; // 2. Import Toaster
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -13,7 +15,7 @@ import "./global.css";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
-  strict: false, // Disables strict-mode warnings for shared value reads during render
+  strict: false,
 });
 
 Notifications.setNotificationHandler({
@@ -95,13 +97,16 @@ function AuthGate() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider>
-          <AppInitializer />
-          <AuthGate />
-        </SafeAreaProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}> {/* 3. Wrap root with GestureHandler */}
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <SafeAreaProvider>
+            <AppInitializer />
+            <AuthGate />
+            <Toaster /> {/* 4. Place Toaster globally here */}
+          </SafeAreaProvider>
+        </QueryClientProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }

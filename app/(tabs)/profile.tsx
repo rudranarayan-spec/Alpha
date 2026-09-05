@@ -28,6 +28,8 @@ interface UserProfile {
   role_id: string;
   billing_address: string | null;
   gst_number: string | null;
+  due_amount: string;
+  order_count: number;
   status: string;
   created_at: string;
   updated_at: string;
@@ -48,7 +50,6 @@ export default function ProfileScreen() {
     queryKey: ['userProfile', token],
     queryFn: async () => {
       const response = await api.get('/user');
-      // Handles unwarpping for { status, user: {} }, { data: {} }, or root object
       return response.data?.user || response.data?.data || response.data;
     },
     enabled: Boolean(token),
@@ -146,6 +147,16 @@ export default function ProfileScreen() {
                     >
                       {displayEmail}
                     </Text>
+                    {/* Add GSTIN line here */}
+                    {user?.gst_number && (
+                      <Text
+                        className="text-emerald-400 font-bold mt-1"
+                        style={{ fontSize: isTablet ? 12 : 10 }}
+                        numberOfLines={1}
+                      >
+                        GSTIN: {user.gst_number}
+                      </Text>
+                    )}
                   </>
                 )}
               </View>
@@ -153,7 +164,16 @@ export default function ProfileScreen() {
 
             {Boolean(token) && (
               <Pressable
-                onPress={() => router.push('/profile/edit')}
+                onPress={() => {
+                  router.push({
+                    pathname: '/profile/edit',
+                    params: {
+                      billing_name: user?.billing_name || '',
+                      phone: user?.phone || '',
+                      billing_address: user?.billing_address || '',
+                    },
+                  });
+                }}
                 className="w-10 h-10 bg-white/10 rounded-xl items-center justify-center border border-white/10 active:opacity-70"
               >
                 <Ionicons name="create-outline" size={18} color="white" />
@@ -164,29 +184,39 @@ export default function ProfileScreen() {
 
         {/* MAIN CONTAINER */}
         <View className="max-w-4xl mx-auto w-full px-5 -mt-6">
-          {/* METRICS ROW */}
+          {/* STATS ROW (ORDERS & DUE AMOUNT) */}
           <View className="bg-white rounded-3xl p-5 flex-row justify-between items-center shadow-sm border border-slate-100">
             <Pressable
-              onPress={() => router.push('/(tabs)/bookings')}
+              onPress={() => router.push('/(tabs)/orders')}
               className="flex-1 items-center py-1 border-r border-slate-100"
             >
-              <Text className="text-emerald-600 text-lg md:text-xl font-black tracking-tight">3 Active</Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider">Orders</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => router.push('/profile/addresses')}
-              className="flex-1 items-center py-1 border-r border-slate-100"
-            >
-              <Text className="text-[#0B132B] text-lg md:text-xl font-black tracking-tight">2 Saved</Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider">Addresses</Text>
+              <Text className="text-emerald-600 text-lg md:text-xl font-black tracking-tight">
+                {user?.order_count ?? '0'} Orders
+              </Text>
+              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider">
+                History
+              </Text>
             </Pressable>
 
             <View className="flex-1 items-center py-1">
-              <Text className="text-emerald-600 text-lg md:text-xl font-black tracking-tight">₹150</Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider">Wallet</Text>
+              <Text className="text-rose-600 text-lg md:text-xl font-black tracking-tight">
+                ₹{user?.due_amount ? Number(user.due_amount).toFixed(2) : '0.00'}
+              </Text>
+              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider">
+                Due Amount
+              </Text>
             </View>
           </View>
+
+          <Pressable
+            onPress={() => router.push('/explore')}
+            className="w-full h-14 bg-emerald-600 active:bg-emerald-700 rounded-2xl flex-row items-center justify-center shadow-md shadow-emerald-600/20 mb-2 mt-2"
+          >
+            <Ionicons name="add-circle-outline" size={20} color="white" style={{ marginRight: 8 }} />
+            <Text className="text-white font-black text-xs tracking-wider uppercase">
+              Create New Order
+            </Text>
+          </Pressable>
 
           {/* ACCOUNT MANAGEMENT SECTION */}
           <Text className="text-[#0B132B]/50 font-black text-[11px] md:text-xs uppercase tracking-widest ml-2 mt-8 mb-3">
@@ -203,15 +233,7 @@ export default function ProfileScreen() {
               onPress={() => router.push('/(tabs)/orders')}
               isTablet={isTablet}
             />
-            <ProfileOptionRow
-              icon="location"
-              iconColor="#2563EB"
-              bgColor="bg-blue-50"
-              title="Manage Saved Addresses"
-              subtitle="Configure your shipping coordinates"
-              onPress={() => router.push('/profile/addresses')}
-              isTablet={isTablet}
-            />
+
             <ProfileOptionRow
               icon="settings"
               iconColor="#475569"
@@ -325,9 +347,8 @@ function ProfileOptionRow({
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-row items-center py-4 px-3 active:bg-slate-50 border-b border-slate-100 ${
-        isLast ? 'border-b-0' : ''
-      }`}
+      className={`flex-row items-center py-4 px-3 active:bg-slate-50 border-b border-slate-100 ${isLast ? 'border-b-0' : ''
+        }`}
     >
       <View
         className={`rounded-xl items-center justify-center ${bgColor}`}
