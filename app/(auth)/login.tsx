@@ -23,8 +23,8 @@ export default function LoginScreen() {
     const insets = useSafeAreaInsets();
     const { login } = useAuth();
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("rudra@admin.com");
+    const [password, setPassword] = useState("AdminPass");
     const [showPassword, setShowPassword] = useState(false);
     const [isSigningIn, setIsSigningIn] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -69,6 +69,7 @@ export default function LoginScreen() {
                     );
                 }
             } else {
+                console.log("Login failed:", data.message);
                 setErrorMessage(
                     data.message || "Invalid credentials. Please try again."
                 );
