@@ -8,7 +8,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { setAuthTokenGetter } from "@/lib/api/client";
+import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import "./global.css";
+
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false, // Disables strict-mode warnings for shared value reads during render
+});
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -49,7 +55,6 @@ function AppStack() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="settings" />
-      <Stack.Screen name="services" />
       <Stack.Screen
         name="modal"
         options={{

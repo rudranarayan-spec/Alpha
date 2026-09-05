@@ -204,21 +204,34 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Place New Order Action Button */}
+         {/* High-End Modern Action Banner */}
           <Pressable
-            onPress={() => router.replace('/(tabs)/explore' as any)}
-            className="bg-emerald-600 active:bg-emerald-700 rounded-2xl py-3.5 px-4 flex-row items-center justify-between shadow-md mb-6 border border-emerald-500/30"
+            onPress={() => router.push('/(tabs)/explore' as any)}
+            className="bg-emerald-900 rounded-3xl p-4 flex-row items-center justify-between shadow-xl mb-6 border border-emerald-500/40 relative overflow-hidden active:opacity-95"
           >
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-xl bg-white/20 items-center justify-center mr-3">
-                <Ionicons name="add-circle-outline" size={18} color="#FFFFFF" />
+            {/* Subtle Inner Highlight Layer */}
+            <View className="absolute inset-0 bg-emerald-800/40" />
+
+            <View className="flex-row items-center flex-1 pr-3 relative z-10">
+              <View className="w-11 h-11 rounded-2xl bg-white/10 items-center justify-center mr-3.5 border border-white/20">
+                <Ionicons name="add" size={22} color="#FFFFFF" />
               </View>
-              <View>
-                <Text className="text-white text-xs font-black uppercase tracking-wider">Place New Order</Text>
-                <Text className="text-emerald-100 text-[11px] font-medium">Browse spices & eco-friendly catalog</Text>
+              <View className="flex-1">
+                <View className="flex-row items-center space-x-2 mb-0.5">
+                  <Text className="text-white text-xs font-black uppercase tracking-wider">Place New Order</Text>
+                  <View className="bg-emerald-500/40 px-1.5 py-0.5 rounded text-[9px] border border-emerald-400/30">
+                    <Text className="text-emerald-200 text-[9px] font-bold">INSTANT</Text>
+                  </View>
+                </View>
+                <Text className="text-emerald-100/90 text-[11px] font-medium leading-tight">
+                  Explore certified organic spices & eco-catalog
+                </Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
+
+            <View className="w-8 h-8 rounded-full bg-white/10 items-center justify-center border border-white/10 relative z-10">
+              <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
+            </View>
           </Pressable>
 
           {/* Recent Orders Section */}
