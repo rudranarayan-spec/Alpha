@@ -5,16 +5,19 @@ import { AnimatePresence, MotiView } from 'moti';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
+    Image,
     Pressable,
     ScrollView,
     Text,
+    TextInput,
     useWindowDimensions,
-    View,
+    View
 } from 'react-native';
 
 import { OrderSuccessModal } from '@/components/OrderSuccessModal';
-import { orderService } from '@/services/order.service'; // Import the new order service
+import { orderService } from '@/services/order.service';
 import { useCartStore } from '@/store/cart.store';
+import { toast } from 'sonner-native';
 
 export default function CartScreen() {
     const router = useRouter();
@@ -27,9 +30,12 @@ export default function CartScreen() {
     // Cart Store Hooks
     const cartItemsMap = useCartStore((state) => state.items);
     const updateQuantity = useCartStore((state) => state.updateQuantity);
+    const setQuantity = useCartStore((state) => state.setQuantity);
     const removeItem = useCartStore((state) => state.removeItem);
     const clearCart = useCartStore((state) => state.clearCart);
     const getSubtotal = useCartStore((state) => state.getSubtotal);
+
+    const [stockWarning, setStockWarning] = useState<string | null>(null);
 
     const cartItems = useMemo(() => Object.values(cartItemsMap), [cartItemsMap]);
     const subtotal = getSubtotal();
@@ -38,6 +44,9 @@ export default function CartScreen() {
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+
+    // Track local text input values per product ID to allow smooth manual typing (e.g., "99")
+    const [localQuantities, setLocalQuantities] = useState<Record<string, string>>({});
 
     // Mock pre-set user delivery address check
     const hasUserAddress = true;
@@ -50,50 +59,88 @@ export default function CartScreen() {
 
         if (cartItems.length === 0) return;
 
-        setIsPlacingOrder(true);
+        toast('Confirm Order', {
+            description: `Total amount: ₹${subtotal.toFixed(2)} for ${cartItems.length} item(s).`,
+            action: {
+                label: 'Confirm',
+                onClick: async () => {
+                    // 1. Explicitly dismiss the toast notification immediately
+                    toast.dismiss();
 
-        try {
-            console.log('LOG Placing order via API with cart items:', JSON.stringify(cartItems));
-            const product_id = cartItems.map((item) => item.product.id);
-            const product_name = cartItems.map((item) => item.product.product_name);
-            const pack_size = cartItems.map((item) => item.product.pack_size ?? 'Standard');
-            const qty = cartItems.map((item) => item.quantity);
-            const cost_price = cartItems.map((item) => {
-                const priceStr = item.product.selling_price ?? item.product.mrp ?? '0';
-                const parsed = parseFloat(priceStr);
-                return isNaN(parsed) ? 0 : parsed;
-            });
-            const order_amount = subtotal;
+                    setIsPlacingOrder(true);
 
-            const response = await orderService.createOrder({
-                product_id, 
-                product_name,
-                pack_size,
-                qty,
-                cost_price,
-                order_amount,
-            });
+                    try {
+                        const product_id = cartItems.map((item) => item.product.id);
+                        const product_name = cartItems.map((item) => item.product.product_name);
+                        const pack_size = cartItems.map((item) => item.product.pack_size ?? 'Standard');
+                        const qty = cartItems.map((item) => item.quantity);
+                        const cost_price = cartItems.map((item) => {
+                            const priceStr = item.product.selling_price ?? item.product.mrp ?? '0';
+                            const parsed = parseFloat(priceStr);
+                            return isNaN(parsed) ? 0 : parsed;
+                        });
+                        const order_amount = subtotal;
 
-            // Extract order ID safely from the response data string
-            const newOrderId = response?.data;
-            console.log('LOG Order created successfully via API:', JSON.stringify(response));
+                        const response = await orderService.createOrder({
+                            product_id,
+                            product_name,
+                            pack_size,
+                            qty,
+                            cost_price,
+                            order_amount,
+                        });
 
-            // Update both states together synchronously 
-            setCreatedOrderId(newOrderId || null);
-            setIsPlacingOrder(false);
-            setOrderSuccess(true);
-            clearCart();
+                        const newOrderId = response?.data;
+                        console.log('LOG Order created successfully via API:', JSON.stringify(response));
 
-            setTimeout(() => {
-                setOrderSuccess(false);
-                setCreatedOrderId(null);
-                router.replace('/(tabs)/explore' as any);
-            }, 3000);
-        } catch (error) {
-            console.error('Failed to create order via API:', error);
-            setIsPlacingOrder(false);
-        }
+                        setIsPlacingOrder(false);
+                        setCreatedOrderId(newOrderId || null);
+                        setOrderSuccess(true);
+                        clearCart();
+
+                        setTimeout(() => {
+                            setOrderSuccess(false);
+                            setCreatedOrderId(null);
+                            router.replace('/(tabs)/explore' as any);
+                        }, 3000);
+                    } catch (error) {
+                        console.error('Failed to create order via API:', error);
+                        setIsPlacingOrder(false);
+                        setOrderSuccess(false);
+                    }
+                },
+            },
+            cancel: {
+                label: 'Cancel',
+                onClick: () => {
+                    toast.dismiss();
+                },
+            },
+            duration: 10000,
+        });
     }, [cartItems, subtotal, clearCart, router, hasUserAddress]);
+
+    // Handle confirming manual input quantity via the arrow/set button
+    const handleCommitQuantity = (product: any) => {
+        const typedText = localQuantities[product.id] ?? String(cartItemsMap[product.id]?.quantity ?? 1);
+        const parsed = parseInt(typedText, 10);
+
+        if (isNaN(parsed) || parsed < 1) {
+            setQuantity(product, 1);
+            setLocalQuantities((prev) => ({ ...prev, [product.id]: '1' }));
+            return;
+        }
+
+        if (parsed > product.stock) {
+            setStockWarning(`Only ${product.stock} items available in stock for ${product.product_name}`);
+            setTimeout(() => setStockWarning(null), 3000);
+            setLocalQuantities((prev) => ({ ...prev, [product.id]: String(product.stock) }));
+            setQuantity(product, product.stock);
+            return;
+        }
+
+        setQuantity(product, parsed);
+    };
 
     return (
         <View className="flex-1 bg-slate-100">
@@ -180,11 +227,24 @@ export default function CartScreen() {
                             }}
                             showsVerticalScrollIndicator={false}
                         >
+                            {/* Stock Warning Banner if triggered */}
+                            {stockWarning && (
+                                <MotiView
+                                    from={{ opacity: 0, translateY: -10 }}
+                                    animate={{ opacity: 1, translateY: 0 }}
+                                    className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl mb-3 flex-row items-center"
+                                >
+                                    <Ionicons name="alert-circle" size={18} color="#D97706" style={{ marginRight: 8 }} />
+                                    <Text className="text-amber-800 text-xs font-bold flex-1">{stockWarning}</Text>
+                                </MotiView>
+                            )}
+
                             {/* Cart Item Cards List */}
                             {cartItems.map((item, index) => {
                                 const { product, quantity } = item;
                                 const unitPrice = parseFloat(product.selling_price ?? product.mrp ?? '0');
                                 const itemTotal = (isNaN(unitPrice) ? 0 : unitPrice) * quantity;
+                                const currentTextVal = localQuantities[product.id] ?? String(quantity);
 
                                 return (
                                     <MotiView
@@ -199,7 +259,14 @@ export default function CartScreen() {
                                         className="bg-white rounded-2xl p-3.5 mb-3.5 border border-slate-100 flex-row items-center shadow-xs"
                                     >
                                         <View className="w-20 h-20 bg-slate-50 rounded-xl overflow-hidden border border-slate-100 items-center justify-center mr-3.5">
-                                            <Ionicons name="cube-outline" size={32} color="#CBD5E1" />
+                                            {product.image ? (
+                                                <Image
+                                                    source={{ uri: product.image }}
+                                                    style={{ width: '100%', height: '100%' }}
+                                                />
+                                            ) : (
+                                                <Ionicons name="cube-outline" size={32} color="#CBD5E1" />
+                                            )}
                                         </View>
 
                                         <View className="flex-1 justify-between self-stretch py-0.5">
@@ -232,25 +299,30 @@ export default function CartScreen() {
                                                     ₹{itemTotal.toFixed(2)}
                                                 </Text>
 
-                                                <View className="flex-row items-center bg-slate-100 rounded-xl p-1 border border-slate-200/60">
+                                                {/* Simple Quantity Input Box + Commit Arrow Button */}
+                                                <View className="flex-row items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
+                                                    <TextInput
+                                                        keyboardType="numeric"
+                                                        value={currentTextVal}
+                                                        onChangeText={(text) => {
+                                                            setLocalQuantities((prev) => ({
+                                                                ...prev,
+                                                                [product.id]: text,
+                                                            }));
+                                                        }}
+                                                        maxLength={4}
+                                                        selectionColor="#059669"
+                                                        className="text-slate-900 text-xs font-black px-2 min-w-[50px] text-center bg-white rounded-lg border border-slate-300 mx-1 py-1 shadow-xs"
+                                                        placeholderTextColor="#94A3B8"
+                                                    />
+
+                                                    {/* Arrow button to commit/save the quantity */}
                                                     <Pressable
                                                         hitSlop={6}
-                                                        onPress={() => updateQuantity(product, -1)}
-                                                        className="w-7 h-7 bg-white rounded-lg items-center justify-center shadow-xs active:bg-slate-200"
+                                                        onPress={() => handleCommitQuantity(product)}
+                                                        className="w-7 h-7 bg-emerald-600 rounded-lg items-center justify-center active:bg-emerald-700 shadow-xs ml-0.5"
                                                     >
-                                                        <Ionicons name="remove" size={14} color="#0F172A" />
-                                                    </Pressable>
-
-                                                    <Text className="text-slate-900 text-xs font-black px-3 min-w-[28px] text-center">
-                                                        {quantity}
-                                                    </Text>
-
-                                                    <Pressable
-                                                        hitSlop={6}
-                                                        onPress={() => updateQuantity(product, 1)}
-                                                        className="w-7 h-7 bg-emerald-600 rounded-lg items-center justify-center active:bg-emerald-700"
-                                                    >
-                                                        <Ionicons name="add" size={14} color="#FFFFFF" />
+                                                        <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
                                                     </Pressable>
                                                 </View>
                                             </View>

@@ -16,6 +16,7 @@ interface CartState {
   removeItem: (productId: number) => void;
   updateQuantity: (product: Product, delta: number) => void;
   clearCart: () => void;
+  setQuantity: (product: Product, quantity: number) => void;
 
   // Computed Values (Getters)
   getCartItems: () => CartItem[];
@@ -32,12 +33,38 @@ export const useCartStore = create<CartState>()(
       addItem: (product, quantity = 1) => {
         set((state) => {
           const existing = state.items[product.id];
-          const newQty = (existing?.quantity ?? 0) + quantity;
+          const currentQty = existing?.quantity ?? 0;
+          const nextQty = currentQty + quantity;
+
+          if (nextQty > product.stock) {
+            return state;
+          }
 
           return {
             items: {
               ...state.items,
-              [product.id]: { product, quantity: newQty },
+              [product.id]: { product, quantity: nextQty },
+            },
+          };
+        });
+      },
+
+      setQuantity: (product, quantity) => {
+        set((state) => {
+          if (quantity <= 0) {
+            const copy = { ...state.items };
+            delete copy[product.id];
+            return { items: copy };
+          }
+
+          if (quantity > product.stock) {
+            return state; // or handle validation error
+          }
+
+          return {
+            items: {
+              ...state.items,
+              [product.id]: { product, quantity },
             },
           };
         });
@@ -55,11 +82,14 @@ export const useCartStore = create<CartState>()(
         set((state) => {
           const currentQty = state.items[product.id]?.quantity ?? 0;
           const nextQty = currentQty + delta;
-
           if (nextQty <= 0) {
             const copy = { ...state.items };
             delete copy[product.id];
             return { items: copy };
+          }
+
+          if (delta > 0 && nextQty > product.stock) {
+            return state;
           }
 
           return {

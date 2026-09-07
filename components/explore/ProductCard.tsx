@@ -6,7 +6,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 interface ProductCardProps {
   product: Product;
   qty: number;
-  onUpdateQty: (delta: number) => void;
+  onAddPress: () => void;
   cardWidth: number;
   onPress?: () => void;
 }
@@ -20,7 +20,7 @@ const formatPrice = (price: string): string => {
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   qty,
-  onUpdateQty,
+  onAddPress,
   cardWidth,
   onPress,
 }) => {
@@ -29,17 +29,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const showMrp = mrpPrice && mrpPrice !== sellingPrice;
   const isOutOfStock = product.stock === 0;
 
-const discountPercent = useMemo(() => {
-  if (!showMrp || !product.mrp) return 0;
-  
-  const mrpNum = parseFloat(product.mrp);
-  const sellingNum = parseFloat(product.selling_price ?? '0');
+  const discountPercent = useMemo(() => {
+    if (!showMrp || !product.mrp) return 0;
+    
+    const mrpNum = parseFloat(product.mrp);
+    const sellingNum = parseFloat(product.selling_price ?? '0');
 
-  if (isNaN(mrpNum) || isNaN(sellingNum) || mrpNum <= 0) return 0;
+    if (isNaN(mrpNum) || isNaN(sellingNum) || mrpNum <= 0) return 0;
 
-  const discount = ((mrpNum - sellingNum) / mrpNum) * 100;
-  return Math.max(0, Math.round(discount));
-}, [showMrp, product.mrp, product.selling_price]);
+    const discount = ((mrpNum - sellingNum) / mrpNum) * 100;
+    return Math.max(0, Math.round(discount));
+  }, [showMrp, product.mrp, product.selling_price]);
 
   return (
     <Pressable
@@ -133,7 +133,7 @@ const discountPercent = useMemo(() => {
         </View>
       </View>
 
-      {/* Action Buttons / Stepper */}
+      {/* Action Button: Unavailable, Added State, or Add Button */}
       {isOutOfStock ? (
         <View className="bg-slate-200/80 border border-slate-300/60 py-2 rounded-xl items-center">
           <Text className="text-slate-500 text-[10px] font-black uppercase tracking-wider">
@@ -141,28 +141,18 @@ const discountPercent = useMemo(() => {
           </Text>
         </View>
       ) : qty > 0 ? (
-        <View className="flex-row items-center justify-between bg-emerald-50/80 border border-emerald-200/80 rounded-xl px-1.5 py-1">
-          <Pressable
-            onPress={() => onUpdateQty(-1)}
-            hitSlop={8}
-            className="w-7 h-7 bg-white rounded-lg items-center justify-center shadow-xs active:bg-slate-100"
-          >
-            <Ionicons name="remove" size={13} color="#059669" />
-          </Pressable>
-
-          <Text className="text-xs font-black text-emerald-950">{qty}</Text>
-
-          <Pressable
-            onPress={() => onUpdateQty(1)}
-            hitSlop={8}
-            className="w-7 h-7 bg-emerald-600 rounded-lg items-center justify-center shadow-xs active:bg-emerald-700"
-          >
-            <Ionicons name="add" size={13} color="#FFFFFF" />
-          </Pressable>
-        </View>
+        <Pressable
+          onPress={onAddPress}
+          className="bg-emerald-600 border border-emerald-600 py-2 rounded-xl flex-row items-center justify-center space-x-1.5 active:bg-emerald-700"
+        >
+          <Ionicons name="checkmark-circle" size={13} color="#FFFFFF" />
+          <Text className="text-white text-[11px] font-black tracking-wide ml-1">
+            ADDED ({qty})
+          </Text>
+        </Pressable>
       ) : (
         <Pressable
-          onPress={() => onUpdateQty(1)}
+          onPress={onAddPress}
           className="bg-emerald-50 border border-emerald-300/80 py-2 rounded-xl items-center active:bg-emerald-100/80"
         >
           <Text className="text-emerald-800 text-[11px] font-black tracking-wide">

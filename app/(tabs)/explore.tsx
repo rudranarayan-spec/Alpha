@@ -24,6 +24,7 @@ import { CategoryTabs } from '@/components/explore/CategoryTabs';
 import { ExploreHeader } from '@/components/explore/ExploreHeader';
 import { ProductCard } from '@/components/explore/ProductCard';
 import { StatusBar } from 'expo-status-bar';
+import { toast } from 'sonner-native';
 
 export default function ExploreScreen() {
   const router = useRouter();
@@ -136,7 +137,7 @@ export default function ExploreScreen() {
   return (
     <View className="flex-1 bg-slate-100">
       <StatusBar
-        style={colorScheme === 'dark' ? 'light' : 'dark'}
+        style={colorScheme === 'light' ? 'light' : 'dark'}
         backgroundColor="#0B132B"
       />
 
@@ -239,14 +240,27 @@ export default function ExploreScreen() {
                       tintColor="#059669"
                     />
                   }
-                  renderItem={({ item }: { item: Product }) => (
-                    <ProductCard
-                      product={item}
-                      qty={cartItems[item.id]?.quantity ?? 0}
-                      onUpdateQty={(delta) => updateQuantity(item, delta)}
-                      cardWidth={cardWidth}
-                    />
-                  )}
+                  renderItem={({ item }: { item: Product }) => {
+                    const currentQty = cartItems[item.id]?.quantity ?? 0;
+
+                    return (
+                      <ProductCard
+                        product={item}
+                        qty={currentQty}
+                        onAddPress={() => {
+                          const nextQty = currentQty + 1;
+
+                          if (nextQty > item.stock) {
+                            toast.error(`Only ${item.stock} items available in stock!`);
+                            return;
+                          }
+
+                          updateQuantity(item, 1);
+                        }}
+                        cardWidth={cardWidth}
+                      />
+                    );
+                  }}
                 />
               )}
             </MotiView>
