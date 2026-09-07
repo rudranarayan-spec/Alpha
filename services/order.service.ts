@@ -1,6 +1,7 @@
 import api from "@/lib/api/client";
 
 export interface CreateOrderPayload {
+  product_id: (number | string)[];
   product_name: string[];
   pack_size: string[];
   qty: number[];

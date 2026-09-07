@@ -53,6 +53,8 @@ export default function CartScreen() {
         setIsPlacingOrder(true);
 
         try {
+            console.log('LOG Placing order via API with cart items:', JSON.stringify(cartItems));
+            const product_id = cartItems.map((item) => item.product.id);
             const product_name = cartItems.map((item) => item.product.product_name);
             const pack_size = cartItems.map((item) => item.product.pack_size ?? 'Standard');
             const qty = cartItems.map((item) => item.quantity);
@@ -64,6 +66,7 @@ export default function CartScreen() {
             const order_amount = subtotal;
 
             const response = await orderService.createOrder({
+                product_id, 
                 product_name,
                 pack_size,
                 qty,
@@ -348,7 +351,7 @@ export default function CartScreen() {
                                 ) : (
                                     <>
                                         <Text className="text-white text-xs font-extrabold mr-1.5">
-                                            Place Order (API)
+                                            Place Order
                                         </Text>
                                         <Ionicons name="checkmark-circle-outline" size={16} color="#FFF" />
                                     </>

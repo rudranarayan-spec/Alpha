@@ -103,8 +103,8 @@ export default function RootLayout() {
           <SafeAreaProvider>
             <AppInitializer />
             <AuthGate />
-            <Toaster /> {/* 4. Place Toaster globally here */}
           </SafeAreaProvider>
+            <Toaster /> 
         </QueryClientProvider>
       </AuthProvider>
     </GestureHandlerRootView>
