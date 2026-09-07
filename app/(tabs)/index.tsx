@@ -217,7 +217,7 @@ export default function HomeScreen() {
                 <Ionicons name="add" size={22} color="#FFFFFF" />
               </View>
               <View className="flex-1">
-                <View className="flex-row items-center space-x-2 mb-0.5">
+                <View className="flex-row items-center space-x-2 mb-0.5 gap-2">
                   <Text className="text-white text-xs font-black uppercase tracking-wider">Place New Order</Text>
                   <View className="bg-emerald-500/40 px-1.5 py-0.5 rounded text-[9px] border border-emerald-400/30">
                     <Text className="text-emerald-200 text-[9px] font-bold">INSTANT</Text>
