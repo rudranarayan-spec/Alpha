@@ -30,6 +30,7 @@ interface UserProfile {
   gst_number: string | null;
   due_amount: string;
   order_count: number;
+  total_order_amount: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -185,25 +186,37 @@ export default function ProfileScreen() {
         {/* MAIN CONTAINER */}
         <View className="max-w-4xl mx-auto w-full px-5 -mt-6">
           {/* STATS ROW (ORDERS & DUE AMOUNT) */}
-          <View className="bg-white rounded-3xl p-5 flex-row justify-between items-center shadow-sm border border-slate-100">
+          <View className="bg-white rounded-3xl p-4 sm:p-5 flex-row justify-between items-center shadow-sm border border-slate-100">
+            {/* Orders Column */}
             <Pressable
               onPress={() => router.push('/(tabs)/orders')}
-              className="flex-1 items-center py-1 border-r border-slate-100"
+              className="flex-1 items-center py-1 border-r border-slate-100 px-1"
             >
-              <Text className="text-emerald-600 text-lg md:text-xl font-black tracking-tight">
+              <Text className="text-emerald-600 text-base md:text-xl font-black tracking-tight text-center">
                 {user?.order_count ?? '0'} Orders
               </Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider">
+              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
                 History
               </Text>
             </Pressable>
 
-            <View className="flex-1 items-center py-1">
-              <Text className="text-rose-600 text-lg md:text-xl font-black tracking-tight">
+            {/* Due Amount Column */}
+            <View className="flex-1 items-center py-1 border-r border-slate-100 px-1">
+              <Text className="text-rose-600 text-base md:text-xl font-black tracking-tight text-center">
                 ₹{user?.due_amount ? Number(user.due_amount).toFixed(2) : '0.00'}
               </Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider">
+              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
                 Due Amount
+              </Text>
+            </View>
+
+            {/* Total Order Amount Column */}
+            <View className="flex-1 items-center py-1 px-1">
+              <Text className="text-green-600 text-base md:text-xl font-black tracking-tight text-center">
+                ₹{user?.total_order_amount ? Number(user.total_order_amount).toFixed(2) : '0.00'}
+              </Text>
+              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center" numberOfLines={1}>
+                Total Amount
               </Text>
             </View>
           </View>

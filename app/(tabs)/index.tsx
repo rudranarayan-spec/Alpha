@@ -6,7 +6,6 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import {
-  FlatList,
   Image,
   Pressable,
   RefreshControl,
@@ -277,63 +276,7 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* Promotional Banner Carousel */}
-          <View className="mb-6">
-            <FlatList
-              data={MOCK_BANNERS}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(item) => item.id}
-              snapToInterval={bannerWidth + 12}
-              decelerationRate="fast"
-              contentContainerStyle={{ paddingHorizontal: 2 }}
-              onMomentumScrollEnd={(e) => {
-                const newIndex = Math.round(e.nativeEvent.contentOffset.x / (bannerWidth + 12));
-                setActiveBannerIndex(newIndex);
-              }}
-              renderItem={({ item, index }) => (
-                <View
-                  style={{ width: bannerWidth }}
-                  className={`h-48 rounded-3xl overflow-hidden relative justify-end p-5 bg-[#0B132B] shadow-md border border-slate-800/60 ${index !== MOCK_BANNERS.length - 1 ? 'mr-3' : ''
-                    }`}
-                >
-                  {/* Background Image - Absolute fill matching container bounds properly */}
-                  <View className="absolute inset-0 overflow-hidden rounded-3xl">
-                    <Image
-                      source={{ uri: item.image }}
-                      className="w-full h-full opacity-45"
-                      resizeMode="cover"
-                    />
-                  </View>
-
-                  <View className="absolute inset-0 bg-gradient-to-t from-[#0B132B] via-[#0B132B]/60 to-transparent" />
-
-                  {/* Decorative Glow accent */}
-                  <View className="absolute -right-8 -top-8 w-28 h-28 bg-emerald-500/15 rounded-full blur-xl" />
-
-                  <View className="relative z-10">
-                    <View className="self-start bg-emerald-500/90 px-3 py-1 rounded-full mb-2.5 shadow-xs border border-emerald-400/30">
-                      <Text className="text-white text-[10px] font-black uppercase tracking-widest">{item.badge}</Text>
-                    </View>
-                    <Text className="text-white text-lg font-black tracking-tight mb-1">{item.title}</Text>
-                    <Text className="text-slate-300 text-xs font-medium leading-relaxed">{item.subtitle}</Text>
-                  </View>
-                </View>
-              )}
-            />
-
-            {/* Modern Pill Pagination Dots */}
-            <View className="flex-row justify-center items-center mt-3.5 space-x-1.5">
-              {MOCK_BANNERS.map((_, index) => (
-                <View
-                  key={index}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${activeBannerIndex === index ? 'w-6 bg-emerald-600' : 'w-1.5 bg-slate-300'
-                    }`}
-                />
-              ))}
-            </View>
-          </View>
+   
 
           {/* Catalog Showcase */}
           <View className="flex-row items-center justify-between mb-3 px-1">

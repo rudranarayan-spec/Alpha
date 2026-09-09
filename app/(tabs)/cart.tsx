@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AnimatePresence, MotiView } from 'moti';
@@ -168,9 +168,12 @@ export default function CartScreen() {
                                 <Text className="text-slate-400 text-[11px] font-semibold">
                                     {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} selected
                                 </Text>
+
                             )}
                         </View>
                     </View>
+
+
 
                     {cartItems.length > 0 && (
                         <Pressable
@@ -183,6 +186,17 @@ export default function CartScreen() {
                     )}
                 </View>
             </View>
+
+            {cartItems.length > 0 && (
+                <View className="bg-slate-200/60 px-4 py-2 pt-2 border-b border-slate-200">
+                    <View style={{ width: '100%', maxWidth: maxContentWidth }} className="self-center flex-row items-center">
+                        <Ionicons name="information-circle-outline" size={14} color="#64748B" style={{ marginRight: 6 }} />
+                        <Text className="text-slate-600 text-[11px] font-medium">
+                            You can update item quantities or remove products below.
+                        </Text>
+                    </View>
+                </View>
+            )}
 
             {/* Main Cart Content */}
             {cartItems.length === 0 ? (
@@ -320,9 +334,9 @@ export default function CartScreen() {
                                                     <Pressable
                                                         hitSlop={6}
                                                         onPress={() => handleCommitQuantity(product)}
-                                                        className="w-7 h-7 bg-emerald-600 rounded-lg items-center justify-center active:bg-emerald-700 shadow-xs ml-0.5"
+                                                        className="w-7 h-7 bg-blue-100 rounded-lg items-center justify-center active:bg-emerald-700 shadow-xs ml-0.5"
                                                     >
-                                                        <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
+                                                        <AntDesign name="enter" size={16} color="black" style={{ fontWeight: 'bold' }} />
                                                     </Pressable>
                                                 </View>
                                             </View>

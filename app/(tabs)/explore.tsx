@@ -36,6 +36,7 @@ export default function ExploreScreen() {
   const cartItems = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const getTotalItemsCount = useCartStore((state) => state.getTotalItemsCount);
+  const [processingProductIds, setProcessingProductIds] = useState<Record<number, boolean>>({});
 
   const isTablet = screenWidth >= 768;
   const numColumns = isTablet ? 3 : 2;
@@ -107,6 +108,14 @@ export default function ExploreScreen() {
 
   const totalCartItems = getTotalItemsCount();
 
+  const subtotal = useMemo(() => {
+    return Object.values(cartItems).reduce((sum, cartItem) => {
+      const priceStr = cartItem.product.selling_price ?? cartItem.product.mrp ?? '0';
+      const price = parseFloat(priceStr) || 0;
+      return sum + price * cartItem.quantity;
+    }, 0);
+  }, [cartItems]);
+
   // Handlers
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -122,7 +131,7 @@ export default function ExploreScreen() {
     setSearchQuery('');
   }, []);
 
-  // Initial loading only blocks when we have zero categories fetched
+  // INITIAL LOADING CHECK (Placed AFTER all hooks are declared)
   if (isPendingCategories && categories.length === 0) {
     return (
       <View className="flex-1 bg-slate-50 items-center justify-center">
@@ -135,7 +144,7 @@ export default function ExploreScreen() {
   }
 
   return (
-    <View className="flex-1 bg-slate-100">
+    <View className="flex-1 bg-slate-100 relative">
       <StatusBar
         style={colorScheme === 'light' ? 'light' : 'dark'}
         backgroundColor="#0B132B"
@@ -167,7 +176,6 @@ export default function ExploreScreen() {
           </Text>
         </View>
 
-        {/* Product Loader shows inline without replacing full UI structure */}
         {isFetchingProducts && !isRefreshing && currentProducts.length === 0 ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="small" color="#059669" />
@@ -191,6 +199,7 @@ export default function ExploreScreen() {
                     flexGrow: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
+                    paddingBottom: 100,
                   }}
                   refreshControl={
                     <RefreshControl
@@ -229,7 +238,7 @@ export default function ExploreScreen() {
                   key={`grid-${numColumns}`}
                   numColumns={numColumns}
                   showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
+                  contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
                   columnWrapperStyle={{ justifyContent: 'space-between' }}
                   keyExtractor={(item) => item.id.toString()}
                   refreshControl={
@@ -242,20 +251,30 @@ export default function ExploreScreen() {
                   }
                   renderItem={({ item }: { item: Product }) => {
                     const currentQty = cartItems[item.id]?.quantity ?? 0;
+                    const isProcessing = processingProductIds[item.id];
 
                     return (
                       <ProductCard
                         product={item}
                         qty={currentQty}
-                        onAddPress={() => {
-                          const nextQty = currentQty + 1;
+                        onAddPress={async () => {
+                          if (isProcessing) return; 
 
-                          if (nextQty > item.stock) {
-                            toast.error(`Only ${item.stock} items available in stock!`);
-                            return;
+                          setProcessingProductIds(prev => ({ ...prev, [item.id]: true }));
+                          try {
+                            const nextQty = currentQty + 1;
+
+                            if (nextQty > item.stock) {
+                              toast.error(`Only ${item.stock} items available in stock!`);
+                              return;
+                            }
+
+                            updateQuantity(item, 1);
+                          } finally {
+                            setTimeout(() => {
+                              setProcessingProductIds(prev => ({ ...prev, [item.id]: false }));
+                            }, 250);
                           }
-
-                          updateQuantity(item, 1);
                         }}
                         cardWidth={cardWidth}
                       />
@@ -267,6 +286,40 @@ export default function ExploreScreen() {
           </AnimatePresence>
         )}
       </View>
+
+      {/* SWIGGY-STYLE FLOATING CART BAR */}
+      {totalCartItems > 0 && (
+        <View
+          style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+          className="absolute bottom-0 left-0 right-0 px-4 pt-3 bg-transparent pointer-events-box-none"
+        >
+          <Pressable
+            onPress={() => router.push('/cart' as any)}
+            className="bg-[#0B132B] flex-row items-center justify-between px-5 py-3.5 rounded-2xl shadow-xl border border-slate-700/50"
+          >
+            <View className="flex-row items-center gap-2">
+              <View className="bg-emerald-600 px-2.5 py-1 rounded-lg">
+                <Text className="text-white text-xs font-black">
+                  {totalCartItems} {totalCartItems === 1 ? 'ITEM' : 'ITEMS'}
+                </Text>
+              </View>
+              <View>
+                <Text className="text-white text-xs font-bold">
+                  ₹{subtotal.toFixed(2)}
+                </Text>
+                <Text className="text-slate-400 text-[10px]">
+                  Extra charges may apply
+                </Text>
+              </View>
+            </View>
+
+            <View className="flex-row items-center space-x-1.5 bg-emerald-700 px-4 py-2 rounded-xl">
+              <Text className="text-white text-xs font-bold">View Cart</Text>
+              <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
+            </View>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
