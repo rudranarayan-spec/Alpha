@@ -302,9 +302,16 @@ export default function CartScreen() {
                                                 </View>
 
                                                 {product.pack_size && (
-                                                    <Text className="text-slate-400 text-[11px] font-semibold mt-0.5">
-                                                        {product.pack_size}
-                                                    </Text>
+                                                    <View className="mt-1 flex-row items-center gap-2">
+                                                        <Text className="text-[11px] font-semibold text-slate-500">
+                                                            {product.pack_size}
+                                                        </Text>
+                                                        <View className="h-1 w-1 rounded-full bg-slate-300" />
+                                                        <Text className="text-[11px] font-bold text-slate-700">
+                                                            ₹{product.selling_price}
+                                                            <Text className="font-normal text-slate-400"> / unit</Text>
+                                                        </Text>
+                                                    </View>
                                                 )}
                                             </View>
 
@@ -315,6 +322,9 @@ export default function CartScreen() {
 
                                                 {/* Simple Quantity Input Box + Commit Arrow Button */}
                                                 <View className="flex-row items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
+                                                    <Text className="text-slate-500 text-[11px] font-black mr-1">
+                                                        Qty:
+                                                    </Text>
                                                     <TextInput
                                                         keyboardType="numeric"
                                                         value={currentTextVal}
@@ -368,7 +378,7 @@ export default function CartScreen() {
                                     Order Summary
                                 </Text>
 
-                                <View className="flex-row justify-between items-center mb-2">
+                                {/* <View className="flex-row justify-between items-center mb-2">
                                     <Text className="text-slate-500 text-xs font-medium">
                                         Payment Method
                                     </Text>
@@ -377,7 +387,7 @@ export default function CartScreen() {
                                             Cash on Delivery
                                         </Text>
                                     </View>
-                                </View>
+                                </View> */}
 
                                 <View className="flex-row justify-between items-center">
                                     <Text className="text-slate-500 text-xs font-medium">

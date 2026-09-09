@@ -23,7 +23,7 @@ export default function LoginScreen() {
     const insets = useSafeAreaInsets();
     const { login } = useAuth();
 
-    const [email, setEmail] = useState("rudra@admin.com");
+    const [email, setEmail] = useState("rudra@gmail.com");
     const [password, setPassword] = useState("AdminPass");
     const [showPassword, setShowPassword] = useState(false);
     const [isSigningIn, setIsSigningIn] = useState(false);
@@ -36,7 +36,7 @@ export default function LoginScreen() {
         if (isSigningIn) return;
 
         const cleanEmail = email.trim();
-        const cleanPassword = password; // Do not trim if passwords accept whitespace
+        const cleanPassword = password;
 
         if (!cleanEmail || !cleanPassword) {
             setErrorMessage("Please enter both email and password.");
@@ -136,10 +136,11 @@ export default function LoginScreen() {
                     bounces={false}
                 >
                     <View
-                        className={`w-full ${isTablet
-                            ? "flex-row items-center justify-center px-12"
-                            : "px-5"
-                            }`}
+                        className={`w-full ${
+                            isTablet
+                                ? "flex-row items-center justify-center px-12"
+                                : "px-5"
+                        }`}
                     >
                         {/* Top branding area */}
                         <MotiView
@@ -153,8 +154,9 @@ export default function LoginScreen() {
                             }
                         >
                             <View
-                                className={`mb-4 flex-row items-center ${isTablet ? "justify-start" : "justify-center"
-                                    }`}
+                                className={`mb-4 flex-row items-center ${
+                                    isTablet ? "justify-start" : "justify-center"
+                                }`}
                             >
                                 <View className="h-12 w-12 items-center justify-center rounded-[18px] border border-white/15 bg-white/10">
                                     <Text className="text-xl font-black tracking-tight text-white">
@@ -173,21 +175,23 @@ export default function LoginScreen() {
                             </View>
 
                             <Text
-                                className={`font-black tracking-[-1px] text-white ${isTablet
-                                    ? "text-left text-5xl leading-[56px]"
-                                    : isSmallPhone
+                                className={`font-black tracking-[-1px] text-white ${
+                                    isTablet
+                                        ? "text-left text-5xl leading-[56px]"
+                                        : isSmallPhone
                                         ? "text-center text-2xl leading-8"
                                         : "text-center text-3xl leading-10"
-                                    }`}
+                                }`}
                             >
                                 Powered by{"\n"}Alpha Performance.
                             </Text>
 
                             <Text
-                                className={`mt-2.5 font-medium leading-5 text-blue-100/70 ${isTablet
-                                    ? "max-w-sm text-left text-base"
-                                    : "max-w-[300px] text-center text-xs"
-                                    }`}
+                                className={`mt-2.5 font-medium leading-5 text-blue-100/70 ${
+                                    isTablet
+                                        ? "max-w-sm text-left text-base"
+                                        : "max-w-[300px] text-center text-xs"
+                                }`}
                             >
                                 Sign in to access your dashboard, operations, and account settings.
                             </Text>
@@ -198,10 +202,11 @@ export default function LoginScreen() {
                             from={{ opacity: 0, translateY: 28, scale: 0.97 }}
                             animate={{ opacity: 1, translateY: 0, scale: 1 }}
                             transition={{ type: "timing", duration: 550, delay: 120 }}
-                            className={`w-full bg-white ${isTablet
-                                ? "max-w-md rounded-[36px] p-10"
-                                : "rounded-[32px] px-6 py-6"
-                                }`}
+                            className={`w-full bg-white ${
+                                isTablet
+                                    ? "max-w-md rounded-[36px] p-10"
+                                    : "rounded-[32px] px-6 py-6"
+                            }`}
                             style={{
                                 shadowColor: "#0B132B",
                                 shadowOffset: { width: 0, height: 12 },
@@ -245,7 +250,7 @@ export default function LoginScreen() {
                                 <Text className="mb-1.5 text-xs font-semibold text-slate-700">
                                     Email Address
                                 </Text>
-                                <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3 focus:border-[#132B59]">
+                                <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3">
                                     <Ionicons name="mail-outline" size={18} color="#64748B" />
                                     <TextInput
                                         className="ml-2.5 flex-1 text-sm font-medium text-slate-800"
@@ -265,7 +270,7 @@ export default function LoginScreen() {
                                 <Text className="mb-1.5 text-xs font-semibold text-slate-700">
                                     Password
                                 </Text>
-                                <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3 focus:border-[#132B59]">
+                                <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3">
                                     <Ionicons name="lock-closed-outline" size={18} color="#64748B" />
                                     <TextInput
                                         className="ml-2.5 flex-1 text-sm font-medium text-slate-800"

@@ -2,8 +2,13 @@ import { useCartStore } from "@/store/cart.store";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Platform, Text, View } from "react-native";
+import { LogBox, Platform, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+
+LogBox.ignoreLogs([
+  "Text strings must be rendered within a <Text> component",
+]);
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -80,8 +85,8 @@ export default function TabsLayout() {
 
                 {totalCartItemsCount > 0 && (
                   <View className="absolute -top-1.5 -right-2 bg-emerald-600 min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center border-2 border-white">
-                    <Text className="text-white text-[9px] font-black text-center">
-                      {totalCartItemsCount > 99 ? '99+' : totalCartItemsCount}
+                    <Text className="text-[9px] font-black text-center text-white">
+                      {totalCartItemsCount > 99 ? "99+" : `${totalCartItemsCount}`}
                     </Text>
                   </View>
                 )}
