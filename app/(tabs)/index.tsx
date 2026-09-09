@@ -1,10 +1,12 @@
+import { CategoryService } from '@/services/category.service';
 import { dashboardService } from '@/services/dashboard.service';
 import { useCartStore } from '@/store/cart.store';
+import { Category } from '@/types/category.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Image,
   Pressable,
@@ -15,100 +17,36 @@ import {
   View
 } from 'react-native';
 
-interface Product {
-  id: string;
-  name: string;
-  packSize: string;
-  price: number;
-  image: string;
-}
-
-interface BannerItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  image: string;
-  badge: string;
-}
-
-const MOCK_BANNERS: BannerItem[] = [
-  {
-    id: '1',
-    title: 'Farm-Fresh Pure Spices',
-    subtitle: 'Directly sourced from organic estates with zero artificial additives',
-    image: 'https://imgs.search.brave.com/LmMIY-j_v0tlU8UZ-EoNQKvlNWdOBlDzI1acM8wCL5Y/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9ubzEw/c3BpY2UuY29tL2Nk/bi9zaG9wL2FydGlj/bGVzL2Rpc2NvdmVy/LXdoeS1wdXJlLWZy/ZXNobHktZ3JvdW5k/LXNwaWNlcy1jcmVh/dGUtZGVlcGVyLWZs/YXZvdXItbGVhcm4t/aG93LXF1YWxpdHkt/c291cmNpbmctc21h/bGwtYmF0Y2gtZ3Jp/bmRpbmctYW5kLXpl/cm8tZmlsbGVycy1t/YWtlLXRoZS1kaWZm/ZXJlbmNlX2E5OWJi/MGRmLTdhN2UtNGVh/MC1iNjM2LWRmYTE2/M2MyMWZjNS5wbmc_/dj0xNzc0MDM3MDQz/JndpZHRoPTExMDA',
-    badge: '100% Chemical-Free',
-  },
-  {
-    id: '2',
-    title: 'Eco-Friendly Products',
-    subtitle: 'Biodegradable plates, bowls, and sustainable paper packaging',
-    image: 'https://imgs.search.brave.com/HuENevq1VSdppGBOjjpUHUhWw3QGV6EP8TckMa_Sp9o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNzIv/MTE0LzA2OS9zbWFs/bC9lY28tZnJpZW5k/bHktemVyby13YXN0/ZS1iYXRocm9vbS1h/bmQta2l0Y2hlbi1l/c3NlbnRpYWxzLWZs/YXQtbGF5LXN1c3Rh/aW5hYmxlLWxpdmlu/Zy1wcm9kdWN0cy1m/cmVlLXBob3RvLmpw/ZWc',
-    badge: 'Sustainable Living',
-  },
-  {
-    id: '3',
-    title: 'Wholesale Bulk Essentials',
-    subtitle: 'Flat 20% OFF on certified organic wholesale orders',
-    image: 'https://imgs.search.brave.com/RwQ5FErn7JtRtiZmCYmJRTWV5fGGBcdCnGvWIhEDY5E/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9rZXJh/bGFzcGljZXN3aG9s/ZXNhbGUuY29tL3dw/LWNvbnRlbnQvdXBs/b2Fkcy8yMDIzLzEy/L3NwaWNlcy13aG9s/ZXNhbGUtc2NhbGVk/LndlYnA',
-    badge: 'Limited Offer',
-  },
-];
-
-const MOCK_PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: 'Farm-Grade Turmeric Powder',
-    packSize: '500g Pack',
-    price: 249.00,
-    image: 'https://imgs.search.brave.com/NlXNsmoSrXwMU3lwogy2_nA5CL7_Km4tA1Z-ydpsr0o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMzgv/OTI1Lzg5Ni9zbWFs/bC9haS1nZW5lcmF0/ZWQtdHVybWVyaWMt/cG93ZGVyLWluLWJv/d2wtb24td29vZGVu/LXRhYmxlLWZyZWUt/cGhvdG8uanBn',
-  },
-  {
-    id: '2',
-    name: 'Biodegradable Areca Leaf Plates',
-    packSize: 'Pack of 25',
-    price: 399.00,
-    image: 'https://imgs.search.brave.com/AxdjWEbiawkHpDNyg2k7Ai7C8bjF0adbADuWSMbJ_v0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzL2U1LzJk/L2U2L2U1MmRlNmYx/OTA2MjFjNTdlZTg2/ZDUxYWQyZTNhNzQw/LmpwZw',
-  },
-  {
-    id: '3',
-    name: 'Compostable Kraft Paper Bag',
-    packSize: 'Pack of 50',
-    price: 299.00,
-    image: 'https://imgs.search.brave.com/N6fwkm2eLmuxIg2coBT62qdy_5fk-h2hnQo3U7yxiOI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMTMv/NjI5LzcwNS9zbWFs/bC9zZXQtb2YtcGFw/ZXItYmFncy1waG90/by5qcGc',
-  },
-  {
-    id: '4',
-    name: 'Organic Kashmiri Red Chilli Powder',
-    packSize: '250g Pack',
-    price: 320.00,
-    image: 'https://imgs.search.brave.com/-2zaJuWRGAUpfuNOt32J9doNfiCgLhVhzEefXp11HaA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNTIv/MTE2LzI4OC9zbWFs/bC9hLWJvd2wtb2Yt/cmVkLWNoaWxpLXBv/d2Rlci1hbmQtdHdv/LWNoaWxpLXBlcHBl/cnMtcGhvdG8uanBn',
-  },
-];
-
 export default function HomeScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const contentMaxWidth = isTablet ? 720 : width;
 
-  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
-  const bannerWidth = contentMaxWidth - 32; // accounting for horizontal padding px-4 (16px * 2)
-
   const totalCartItems = useCartStore((state) => state.getTotalItemsCount());
 
-  const { data: dashboard, refetch, isRefetching } = useQuery({
+  // 1. Fetch Dashboard Metrics
+  const { data: dashboard, refetch: refetchDashboard, isRefetching: isRefetchingDashboard } = useQuery({
     queryKey: ['dashboard-data'],
     queryFn: dashboardService.getDashboardData,
   });
 
-  // Auto-scroll banner effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveBannerIndex((prevIndex) => (prevIndex + 1) % MOCK_BANNERS.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  // 2. Fetch Actual Categories from Backend
+  const { 
+    data: categories = [], 
+    refetch: refetchCategories, 
+    isRefetching: isRefetchingCategories 
+  } = useQuery<Category[]>({
+    queryKey: ['categories-home'],
+    queryFn: CategoryService.getCategories,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const handleRefresh = async () => {
+    await Promise.all([refetchDashboard(), refetchCategories()]);
+  };
+
+  const isRefreshing = isRefetchingDashboard || isRefetchingCategories;
 
   const getStatusBadge = (status: string) => {
     const s = status.toLowerCase();
@@ -175,7 +113,7 @@ export default function HomeScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#059669" />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#059669" />
         }
         contentContainerStyle={{ paddingBottom: 40 }}
       >
@@ -208,7 +146,6 @@ export default function HomeScreen() {
             onPress={() => router.push('/(tabs)/explore' as any)}
             className="bg-emerald-900 rounded-3xl p-4 flex-row items-center justify-between shadow-xl mb-6 border border-emerald-500/40 relative overflow-hidden active:opacity-95"
           >
-            {/* Subtle Inner Highlight Layer */}
             <View className="absolute inset-0 bg-emerald-800/40" />
 
             <View className="flex-row items-center flex-1 pr-3 relative z-10">
@@ -249,8 +186,7 @@ export default function HomeScreen() {
                 <Pressable
                   key={order.id}
                   onPress={() => router.push('/(tabs)/orders' as any)}
-                  className={`flex-row items-center justify-between p-3 ${index !== dashboard.latest_orders.length - 1 ? 'border-b border-slate-100' : ''
-                    }`}
+                  className={`flex-row items-center justify-between p-3 ${index !== dashboard.latest_orders.length - 1 ? 'border-b border-slate-100' : ''}`}
                 >
                   <View className="flex-row items-center flex-1 mr-3">
                     <View className="w-9 h-9 rounded-xl bg-slate-100 items-center justify-center mr-3 border border-slate-200">
@@ -276,12 +212,10 @@ export default function HomeScreen() {
             )}
           </View>
 
-   
-
-          {/* Catalog Showcase */}
+          {/* Catalog Categories Showcase */}
           <View className="flex-row items-center justify-between mb-3 px-1">
             <Text className="text-slate-900 text-xs font-black uppercase tracking-wider">
-              Featured Catalog
+              Featured Categories
             </Text>
             <Pressable onPress={() => router.replace('/(tabs)/explore' as any)}>
               <Text className="text-emerald-700 text-xs font-bold">Explore More</Text>
@@ -289,25 +223,40 @@ export default function HomeScreen() {
           </View>
 
           <View className="flex-row flex-wrap justify-between">
-            {MOCK_PRODUCTS.map((product) => (
-              <View
-                key={product.id}
-                className="w-[48%] bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs mb-4"
-              >
-                <Image
-                  source={{ uri: product.image }}
-                  className="w-full h-36 rounded-xl bg-slate-100 mb-3"
-                  resizeMode="cover"
-                />
-                <Text numberOfLines={1} className="text-slate-900 text-xs font-bold tracking-tight mb-1">
-                  {product.name}
-                </Text>
-                <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-slate-100">
-                  <Text className="text-slate-400 text-[11px] font-medium">Pack size</Text>
-                  <Text className="text-slate-700 text-xs font-semibold">{product.packSize}</Text>
-                </View>
+            {categories.length > 0 ? (
+              categories.slice(0, 4).map((category) => (
+                <Pressable
+                  key={category.id}
+                  onPress={() => router.push('/(tabs)/explore' as any)}
+                  className="w-[48%] bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs mb-4 active:opacity-90"
+                >
+                  {category.img_path ? (
+                    <Image
+                      source={{ uri: category.img_path }}
+                      className="w-full h-32 rounded-xl bg-slate-100 mb-3"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View className="w-full h-32 rounded-xl bg-slate-100 mb-3 items-center justify-center">
+                      <Ionicons name="grid-outline" size={24} color="#CBD5E1" />
+                    </View>
+                  )}
+                  <Text numberOfLines={1} className="text-slate-900 text-xs font-bold tracking-tight mb-1">
+                    {category.title}
+                  </Text>
+                  <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-slate-100">
+                    <Text className="text-slate-400 text-[11px] font-medium">Items</Text>
+                    <Text className="text-emerald-700 text-xs font-semibold">
+                      {category.products_count ?? 0} Available
+                    </Text>
+                  </View>
+                </Pressable>
+              ))
+            ) : (
+              <View className="w-full py-6 items-center bg-white rounded-2xl border border-slate-200/80">
+                <Text className="text-slate-400 text-xs font-medium">No categories available</Text>
               </View>
-            ))}
+            )}
           </View>
 
         </View>
