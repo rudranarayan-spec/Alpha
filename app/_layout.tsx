@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 import { Redirect, Stack, useSegments } from "expo-router";
 import React, { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, LogBox, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler"; // 1. Import GestureHandler
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Toaster } from "sonner-native"; // 2. Import Toaster
@@ -12,6 +12,10 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { setAuthTokenGetter } from "@/lib/api/client";
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import "./global.css";
+
+LogBox.ignoreLogs([
+  "Text strings must be rendered within a <Text> component",
+]);
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,

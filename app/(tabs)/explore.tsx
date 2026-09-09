@@ -31,6 +31,7 @@ export default function ExploreScreen() {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const colorScheme = useColorScheme();
+  const dueAmount = useCartStore((state) => state.dueAmount);
 
   // Cart Store Selectors
   const cartItems = useCartStore((state) => state.items);
@@ -259,10 +260,14 @@ export default function ExploreScreen() {
                         qty={currentQty}
                         disabled={isProcessing}
                         onAddPress={async () => {
-                          // Once an item is already in the cart, the button becomes
-                          // a no-op - it should never act as a quantity counter.
                           if (isProcessing || currentQty > 0) return;
-
+                          if (dueAmount > 0) {
+                            toast.warning("Outstanding Dues", {
+                              description: `You have an active due amount of ₹${dueAmount.toFixed(2)}. Please clear it to place new orders.`,
+                              duration: 4000,
+                            });
+                            return;
+                          }
                           if (item.stock <= 0) {
                             toast.error('This item is out of stock!');
                             return;

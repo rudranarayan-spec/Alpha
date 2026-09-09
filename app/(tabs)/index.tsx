@@ -22,6 +22,8 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const contentMaxWidth = isTablet ? 720 : width;
+  const setDueAmount = useCartStore((state) => state.setDueAmount);
+
 
   const totalCartItems = useCartStore((state) => state.getTotalItemsCount());
 
@@ -45,6 +47,14 @@ export default function HomeScreen() {
   const handleRefresh = async () => {
     await Promise.all([refetchDashboard(), refetchCategories()]);
   };
+  
+  React.useEffect(() => {
+    if (dashboard?.due_amount) {
+      setDueAmount(parseFloat(dashboard.due_amount));
+    } else {
+      setDueAmount(0);
+    }
+  }, [dashboard?.due_amount]);
 
   const isRefreshing = isRefetchingDashboard || isRefetchingCategories;
 

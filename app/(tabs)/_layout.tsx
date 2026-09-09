@@ -1,9 +1,10 @@
 import { useCartStore } from "@/store/cart.store";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LogBox, Platform, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 
 
 LogBox.ignoreLogs([
@@ -66,7 +67,11 @@ export default function TabsLayout() {
           options={{
             title: "Products",
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons name={focused ? "search" : "search-outline"} size={22} color={color} />
+              <MaterialCommunityIcons
+                name={focused ? "store" : "store-outline"}
+                size={22}
+                color={color}
+              />
             ),
           }}
         />
