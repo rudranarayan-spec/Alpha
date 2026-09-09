@@ -7,6 +7,7 @@ interface ProductCardProps {
   product: Product;
   qty: number;
   onAddPress: () => void;
+  disabled?: boolean;
   cardWidth: number;
   onPress?: () => void;
 }
@@ -23,6 +24,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onAddPress,
   cardWidth,
   onPress,
+  disabled = false,
 }) => {
   const sellingPrice = formatPrice(product.selling_price ?? '0');
   const mrpPrice = product.mrp ? formatPrice(product.mrp) : null;
@@ -43,7 +45,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <Pressable
-      onPress={isOutOfStock ? undefined : onPress}
+      onPress={isOutOfStock || disabled ? undefined : onPress}
       style={{ width: cardWidth }}
       className={`rounded-2xl p-2.5 border mb-3.5 flex-col justify-between transition-all ${
         isOutOfStock
@@ -141,19 +143,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </Text>
         </View>
       ) : qty > 0 ? (
-        <Pressable
-          onPress={onAddPress}
-          className="bg-emerald-600 border border-emerald-600 py-2 rounded-xl flex-row items-center justify-center space-x-1.5 active:bg-emerald-700"
+        <View
+          className="py-2 rounded-xl flex-row items-center justify-center border bg-emerald-600 border-emerald-600"
         >
           <Ionicons name="checkmark-circle" size={13} color="#FFFFFF" />
           <Text className="text-white text-[11px] font-black tracking-wide ml-1">
-            ADDED ({qty})
+            ADDED
           </Text>
-        </Pressable>
+        </View>
       ) : (
         <Pressable
           onPress={onAddPress}
-          className="bg-emerald-50 border border-emerald-300/80 py-2 rounded-xl items-center active:bg-emerald-100/80"
+          disabled={disabled}
+          className={`py-2 rounded-xl items-center border ${
+            disabled
+              ? 'bg-emerald-50/50 border-emerald-300/40 opacity-60'
+              : 'bg-emerald-50 border-emerald-300/80 active:bg-emerald-100/80'
+          }`}
         >
           <Text className="text-emerald-800 text-[11px] font-black tracking-wide">
             ADD

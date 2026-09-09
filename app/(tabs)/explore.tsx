@@ -257,23 +257,24 @@ export default function ExploreScreen() {
                       <ProductCard
                         product={item}
                         qty={currentQty}
+                        disabled={isProcessing}
                         onAddPress={async () => {
-                          if (isProcessing) return; 
+                          // Once an item is already in the cart, the button becomes
+                          // a no-op - it should never act as a quantity counter.
+                          if (isProcessing || currentQty > 0) return;
+
+                          if (item.stock <= 0) {
+                            toast.error('This item is out of stock!');
+                            return;
+                          }
 
                           setProcessingProductIds(prev => ({ ...prev, [item.id]: true }));
                           try {
-                            const nextQty = currentQty + 1;
-
-                            if (nextQty > item.stock) {
-                              toast.error(`Only ${item.stock} items available in stock!`);
-                              return;
-                            }
-
                             updateQuantity(item, 1);
                           } finally {
                             setTimeout(() => {
                               setProcessingProductIds(prev => ({ ...prev, [item.id]: false }));
-                            }, 250);
+                            }, 300);
                           }
                         }}
                         cardWidth={cardWidth}

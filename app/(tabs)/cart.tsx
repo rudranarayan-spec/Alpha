@@ -101,7 +101,7 @@ export default function CartScreen() {
                         setTimeout(() => {
                             setOrderSuccess(false);
                             setCreatedOrderId(null);
-                            router.replace('/(tabs)/explore' as any);
+                            router.replace('/(tabs)/index' as any);
                         }, 3000);
                     } catch (error) {
                         console.error('Failed to create order via API:', error);
@@ -290,25 +290,25 @@ export default function CartScreen() {
                                                         numberOfLines={2}
                                                         className="text-slate-900 text-sm font-bold flex-1 mr-2 leading-5"
                                                     >
-                                                        {product.product_name}
+                                                        {product.product_name} {product.pack_size}
                                                     </Text>
                                                     <Pressable
                                                         hitSlop={10}
                                                         onPress={() => removeItem(product.id)}
                                                         className="p-1 -mr-1 rounded-full active:bg-slate-100"
                                                     >
-                                                        <Ionicons name="trash-outline" size={17} color="#94A3B8" />
+                                                        <Ionicons name="trash-outline" size={17} color="#" />
                                                     </Pressable>
                                                 </View>
 
                                                 {product.pack_size && (
                                                     <View className="mt-1 flex-row items-center gap-2">
-                                                        <Text className="text-[11px] font-semibold text-slate-500">
+                                                        {/* <Text className="text-[11px] font-semibold text-slate-500">
                                                             {product.pack_size}
-                                                        </Text>
-                                                        <View className="h-1 w-1 rounded-full bg-slate-300" />
+                                                        </Text> */}
+                                                        {/* <View className="h-1 w-1 rounded-full bg-slate-300" /> */}
                                                         <Text className="text-[11px] font-bold text-slate-700">
-                                                            ₹{product.selling_price}
+                                                            Price: ₹{product.selling_price}
                                                             <Text className="font-normal text-slate-400"> / unit</Text>
                                                         </Text>
                                                     </View>
