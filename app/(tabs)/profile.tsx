@@ -192,23 +192,13 @@ export default function ProfileScreen() {
               onPress={() => router.push('/(tabs)/orders')}
               className="flex-1 items-center py-1 border-r border-slate-100 px-1"
             >
-              <Text className="text-emerald-600 text-base md:text-xl font-black tracking-tight text-center">
+              <Text className="text-blue-600 text-base md:text-xl font-black tracking-tight text-center">
                 {user?.order_count ?? '0'} Orders
               </Text>
               <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
                 History
               </Text>
             </Pressable>
-
-            {/* Due Amount Column */}
-            <View className="flex-1 items-center py-1 border-r border-slate-100 px-1">
-              <Text className="text-rose-600 text-base md:text-xl font-black tracking-tight text-center">
-                ₹{user?.due_amount ? Number(user.due_amount).toFixed(2) : '0.00'}
-              </Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
-                Due Amount
-              </Text>
-            </View>
 
             {/* Total Order Amount Column */}
             <View className="flex-1 items-center py-1 px-1">
@@ -217,6 +207,16 @@ export default function ProfileScreen() {
               </Text>
               <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center" numberOfLines={1}>
                 Total Amount
+              </Text>
+            </View>
+
+            {/* Due Amount Column */}
+            <View className="flex-1 items-center py-1 border-r border-slate-100 px-1">
+              <Text className="text-rose-600 text-base md:text-xl font-black tracking-tight text-center">
+                ₹{user?.due_amount ? Number(user.due_amount).toFixed(2) : '0.00'}
+              </Text>
+              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
+                Due Amount
               </Text>
             </View>
           </View>

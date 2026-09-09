@@ -32,10 +32,10 @@ export default function HomeScreen() {
   });
 
   // 2. Fetch Actual Categories from Backend
-  const { 
-    data: categories = [], 
-    refetch: refetchCategories, 
-    isRefetching: isRefetchingCategories 
+  const {
+    data: categories = [],
+    refetch: refetchCategories,
+    isRefetching: isRefetchingCategories
   } = useQuery<Category[]>({
     queryKey: ['categories-home'],
     queryFn: CategoryService.getCategories,
@@ -126,22 +126,39 @@ export default function HomeScreen() {
               Overview Summary
             </Text>
             <View className="flex-row items-center justify-between">
-              <View className="flex-1 pr-3 border-r border-slate-800">
-                <Text className="text-slate-400 text-xs font-semibold mb-1">Total Orders</Text>
-                <Text className="text-white text-2xl font-black tracking-tight">
+              {/* Total Orders */}
+              <View className="flex-1 pr-2 border-r border-slate-800">
+                <Text className="text-slate-400 text-[11px] font-semibold mb-1" numberOfLines={1}>
+                  Orders
+                </Text>
+                <Text className="text-white text-lg font-black tracking-tight">
                   {dashboard?.total_orders ?? 0}
                 </Text>
               </View>
-              <View className="flex-1 pl-4">
-                <Text className="text-slate-400 text-xs font-semibold mb-1">Due Amount</Text>
-                <Text className="text-red-400 text-2xl font-black tracking-tight">
-                  ₹{parseFloat(dashboard?.due_amount || '0').toFixed(2)}
+
+              {/* Total Order Amount */}
+              <View className="flex-1 px-2 border-r border-slate-800">
+                <Text className="text-slate-400 text-[11px] font-semibold mb-1" numberOfLines={1}>
+                  Total Amount
+                </Text>
+                <Text className="text-emerald-400 text-lg font-black tracking-tight" numberOfLines={1}>
+                  {`₹${parseFloat(dashboard?.total_order_amount || '0').toFixed(2)}`}
+                </Text>
+              </View>
+
+              {/* Due Amount */}
+              <View className="flex-1 pl-2">
+                <Text className="text-slate-400 text-[11px] font-semibold mb-1" numberOfLines={1}>
+                  Due Amount
+                </Text>
+                <Text className="text-red-400 text-lg font-black tracking-tight" numberOfLines={1}>
+                  {`₹${parseFloat(dashboard?.due_amount || '0').toFixed(2)}`}
                 </Text>
               </View>
             </View>
           </View>
 
-         {/* High-End Modern Action Banner */}
+          {/* High-End Modern Action Banner */}
           <Pressable
             onPress={() => router.push('/(tabs)/explore' as any)}
             className="bg-emerald-900 rounded-3xl p-4 flex-row items-center justify-between shadow-xl mb-6 border border-emerald-500/40 relative overflow-hidden active:opacity-95"
