@@ -166,7 +166,7 @@ export default function LoginScreen() {
 
                                 <View className="ml-3">
                                     <Text className="text-xl font-black tracking-tight text-white">
-                                        Alpha<Text className="text-[#66A6FF]">Services</Text>
+                                        Trumate<Text className="text-[#66A6FF]">Services</Text>
                                     </Text>
                                     <Text className="mt-0.5 text-[9px] font-bold uppercase tracking-[2px] text-white/50">
                                         Enterprise Platform
@@ -183,7 +183,7 @@ export default function LoginScreen() {
                                         : "text-center text-3xl leading-10"
                                 }`}
                             >
-                                Powered by{"\n"}Alpha Performance.
+                                Powered by{"\n"}Trumate.
                             </Text>
 
                             <Text
@@ -337,7 +337,7 @@ export default function LoginScreen() {
                             </Pressable>
 
                             <Text className="mt-6 text-center text-[10px] font-medium leading-4 text-slate-400">
-                                By continuing, you agree to the Alpha Terms of Service and Privacy Policy.
+                                By continuing, you agree to the Trumate Terms of Service and Privacy Policy.
                             </Text>
                         </MotiView>
                     </View>

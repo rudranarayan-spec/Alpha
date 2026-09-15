@@ -54,7 +54,7 @@ export default function PrivacyPolicyScreen() {
                     </Text>
 
                     <Text className="text-slate-600 text-sm font-medium leading-6 mb-6">
-                        At Alpha, we value your trust and are committed to protecting your personal information. This Privacy Policy outlines how we collect, process, share, and safeguard your data when you browse our catalog, purchase spices, or order eco-friendly packaging products.
+                        At Trumate, we value your trust and are committed to protecting your personal information. This Privacy Policy outlines how we collect, process, share, and safeguard your data when you browse our catalog, purchase spices, or order eco-friendly packaging products.
                     </Text>
 
                     {/* SECTION 1 */}
@@ -73,7 +73,7 @@ export default function PrivacyPolicyScreen() {
                         2. How Your Data Is Used
                     </Text>
                     <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-                        Your information is used strictly to process orders, package and dispatch goods (Spices and Eco-friendly items), send real-time order tracking updates via push notifications, process refunds, and improve platform performance on Alpha.
+                        Your information is used strictly to process orders, package and dispatch goods (Spices and Eco-friendly items), send real-time order tracking updates via push notifications, process refunds, and improve platform performance on Trumate.
                     </Text>
 
                     {/* SECTION 3 */}

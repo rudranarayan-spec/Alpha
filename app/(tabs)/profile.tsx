@@ -326,7 +326,7 @@ export default function ProfileScreen() {
               </Pressable>
             )}
             <Text className="text-center text-slate-300 text-[10px] font-bold uppercase tracking-widest mt-6">
-              Alpha Terminal • v1.2.0
+              Trumate • v1.2.0
             </Text>
           </View>
         </View>

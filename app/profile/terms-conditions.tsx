@@ -54,7 +54,7 @@ export default function TermsConditionsScreen() {
           </Text>
 
           <Text className="text-slate-600 text-sm font-medium leading-6 mb-6">
-            Welcome to Alpha. By browsing, placing orders, or purchasing products on our platform, you agree to comply with and be bound by the following Terms & Conditions.
+            Welcome to Trumate. By browsing, placing orders, or purchasing products on our platform, you agree to comply with and be bound by the following Terms & Conditions.
           </Text>
 
           {/* SECTION 1 */}
@@ -62,7 +62,7 @@ export default function TermsConditionsScreen() {
             1. Account Registration & Security
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-            Users must provide accurate details when configuring their Alpha profile. You are responsible for preserving account credentials and managing access to your device.
+            Users must provide accurate details when configuring their Trumate profile. You are responsible for preserving account credentials and managing access to your device.
           </Text>
 
           {/* SECTION 2 */}
@@ -70,7 +70,7 @@ export default function TermsConditionsScreen() {
             2. Product Catalog & Quality Standards
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-            Alpha offers items across distinct catalog categories including Spices (such as Haldi Powder, Mirchi Powder, and whole spices) and Eco-Friendly Products (such as eco bags, polythene alternatives, butter paper, and biodegradable plates). Weights, colors, and packaging design may vary slightly based on harvest batch or manufacturing runs.
+            Trumate offers items across distinct catalog categories including Spices (such as Haldi Powder, Mirchi Powder, and whole spices) and Eco-Friendly Products (such as eco bags, polythene alternatives, butter paper, and biodegradable plates). Weights, colors, and packaging design may vary slightly based on harvest batch or manufacturing runs.
           </Text>
 
           {/* SECTION 3 */}
@@ -78,7 +78,7 @@ export default function TermsConditionsScreen() {
             3. Pricing, Orders & Payments
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-6">
-            All prices are listed in INR (₹) and are inclusive of applicable taxes unless stated otherwise. Alpha reserves the right to modify prices or cancel orders affected by technical pricing errors or unexpected stock shortages prior to dispatch.
+            All prices are listed in INR (₹) and are inclusive of applicable taxes unless stated otherwise. Trumate reserves the right to modify prices or cancel orders affected by technical pricing errors or unexpected stock shortages prior to dispatch.
           </Text>
 
           {/* SECTION 4 */}
@@ -102,7 +102,7 @@ export default function TermsConditionsScreen() {
             6. Fair Platform Usage
           </Text>
           <Text className="text-slate-500 text-sm font-medium leading-6 mb-2">
-            Any attempt to manipulate coupon codes, submit fraudulent payment claims, create fake accounts, or exploit application workflows will result in immediate, permanent account suspension on Alpha.
+            Any attempt to manipulate coupon codes, submit fraudulent payment claims, create fake accounts, or exploit application workflows will result in immediate, permanent account suspension on Trumate.
           </Text>
         </View>
       </ScrollView>
