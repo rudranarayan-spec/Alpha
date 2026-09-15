@@ -47,7 +47,7 @@ export default function HomeScreen() {
   const handleRefresh = async () => {
     await Promise.all([refetchDashboard(), refetchCategories()]);
   };
-  
+
   React.useEffect(() => {
     if (dashboard?.due_amount) {
       setDueAmount(parseFloat(dashboard.due_amount));
@@ -81,27 +81,28 @@ export default function HomeScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-50">
-      <StatusBar style="light" backgroundColor="#0B132B" />
+    <View className="flex-1 bg-[#FDFBF7]">
+      <StatusBar style="dark" backgroundColor="#FDFBF7" />
 
       {/* Header */}
-      <View className="bg-[#0B132B] pt-14 pb-5 px-5 border-b border-slate-800">
+      <View className="bg-[#FBEFDE] pt-14 pb-5 px-5 border-b border-[#1C3516]/10">
         <View style={{ width: '100%', maxWidth: contentMaxWidth }} className="self-center flex-row items-center justify-between">
           <View>
-            <Text className="text-slate-400 text-[11px] font-medium tracking-tight">Welcome back,</Text>
-            <Text className="text-white text-lg font-black tracking-tight">
+            <Text className="text-[#f88909] text-[11px] font-medium tracking-tight">Welcome back,</Text>
+
+            <Text className="text-[#1C3516] text-lg font-black tracking-tight">
               {dashboard?.user_name || 'Loading...'}
             </Text>
           </View>
           <View className="flex-row items-center space-x-3">
             <Pressable
               onPress={() => router.push('/cart' as any)}
-              className="w-10 h-10 rounded-xl bg-slate-800 items-center justify-center border border-slate-700 active:bg-slate-700 relative"
+              className="w-10 h-10 rounded-xl bg-white items-center justify-center border border-[#1C3516]/15 shadow-sm active:bg-slate-50 relative"
             >
-              <Ionicons name="cart-outline" size={20} color="#FFFFFF" />
+              <Ionicons name="cart-outline" size={20} color="#1C3516" />
 
               {totalCartItems > 0 && (
-                <View className="absolute -top-1.5 -right-1.5 bg-emerald-500 min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center border-2 border-[#0B132B]">
+                <View className="absolute -top-1.5 -right-1.5 bg-[#EE9F19] min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center border-2 border-[#FDFBF7]">
                   <Text className="text-white text-[9px] font-black">
                     {totalCartItems > 99 ? '99+' : totalCartItems}
                   </Text>
@@ -111,9 +112,9 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => router.push('/profile' as any)}
-              className="w-10 h-10 rounded-xl bg-slate-800 items-center justify-center border border-slate-700 active:bg-slate-700 ml-3"
+              className="w-10 h-10 rounded-xl bg-orange-200 items-center justify-center border border-[#1C3516]/15 shadow-sm active:bg-slate-50 ml-3"
             >
-              <Ionicons name="person-outline" size={19} color="#FFFFFF" />
+              <Ionicons name="person-outline" size={19} color="#1C3516" />
             </Pressable>
           </View>
         </View>
@@ -130,38 +131,38 @@ export default function HomeScreen() {
         <View style={{ width: '100%', maxWidth: contentMaxWidth }} className="self-center px-4 pt-5">
 
           {/* Key Metrics Dashboard Card */}
-          <View className="bg-[#0B132B] rounded-3xl p-5 shadow-lg relative overflow-hidden mb-4">
-            <View className="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl" />
-            <Text className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3">
+          <View className="bg-[#FDFBF7] rounded-3xl p-5 shadow-lg border border-[#1C3516]/10 relative overflow-hidden mb-4">
+            <View className="absolute -right-6 -bottom-6 w-32 h-32 bg-[#EE9F19]/10 rounded-full blur-2xl" />
+            <Text className="text-[#1C3516]/60 text-[10px] font-black uppercase tracking-widest mb-3">
               Overview Summary
             </Text>
             <View className="flex-row items-center justify-between">
               {/* Total Orders */}
-              <View className="flex-1 pr-2 border-r border-slate-800">
-                <Text className="text-slate-400 text-[11px] font-semibold mb-1" numberOfLines={1}>
+              <View className="flex-1 pr-2 border-r border-[#1C3516]/10">
+                <Text className="text-[#1C3516]/70 text-[11px] font-semibold mb-1" numberOfLines={1}>
                   Orders
                 </Text>
-                <Text className="text-white text-lg font-black tracking-tight">
+                <Text className="text-[#1C3516] text-lg font-black tracking-tight">
                   {dashboard?.total_orders ?? 0}
                 </Text>
               </View>
 
               {/* Total Order Amount */}
-              <View className="flex-1 px-2 border-r border-slate-800">
-                <Text className="text-slate-400 text-[11px] font-semibold mb-1" numberOfLines={1}>
+              <View className="flex-1 px-2 border-r border-[#1C3516]/10">
+                <Text className="text-[#1C3516]/70 text-[11px] font-semibold mb-1" numberOfLines={1}>
                   Total Amount
                 </Text>
-                <Text className="text-emerald-400 text-lg font-black tracking-tight" numberOfLines={1}>
+                <Text className="text-[#1C3516] text-lg font-black tracking-tight" numberOfLines={1}>
                   {`₹${parseFloat(dashboard?.total_order_amount || '0').toFixed(2)}`}
                 </Text>
               </View>
 
               {/* Due Amount */}
               <View className="flex-1 pl-2">
-                <Text className="text-slate-400 text-[11px] font-semibold mb-1" numberOfLines={1}>
+                <Text className="text-[#1C3516]/70 text-[11px] font-semibold mb-1" numberOfLines={1}>
                   Due Amount
                 </Text>
-                <Text className="text-red-400 text-lg font-black tracking-tight" numberOfLines={1}>
+                <Text className="text-[#ee1919] text-lg font-black tracking-tight" numberOfLines={1}>
                   {`₹${parseFloat(dashboard?.due_amount || '0').toFixed(2)}`}
                 </Text>
               </View>

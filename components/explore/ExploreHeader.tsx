@@ -21,14 +21,14 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
 }) => {
     const router = useRouter();
     return (
-        <View style={{ paddingTop: insets.top + 12 }} className="bg-[#0B132B] px-5 pb-2">
+        <View style={{ paddingTop: insets.top + 12 }} className="bg-[#FDFBF7] px-5 pb-2 border-b border-[#1C3516]/10">
             {/* Title & Cart Row */}
             <View className="flex-row justify-between items-start mb-3.5">
                 <View className="flex-1 mr-3">
-                    <Text className="text-white text-2xl md:text-3xl font-black tracking-tight leading-8">
+                    <Text className="text-[#1C3516] text-2xl md:text-3xl font-black tracking-tight leading-8">
                         Explore Catalog
                     </Text>
-                    <Text className="text-slate-400 text-xs font-medium mt-0.5">
+                    <Text className="text-orange-500 text-xs font-medium mt-0.5">
                         Pure organic spices & eco-friendly essentials
                     </Text>
                 </View>
@@ -36,7 +36,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                 {totalCartItems > 0 && (
                     <Pressable
                         onPress={() => router.push('/(tabs)/cart')}
-                        className="bg-emerald-600 rounded-full px-3 py-1.5 flex-row items-center active:opacity-80"
+                        className="bg-[#EE9F19] rounded-full px-3.5 py-1.5 flex-row items-center active:opacity-80 shadow-sm"
                     >
                         <Ionicons name="bag-handle-outline" size={14} color="#FFFFFF" />
                         <Text className="text-white text-xs font-extrabold ml-1.5">
@@ -47,18 +47,18 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
             </View>
 
             {/* Search Input */}
-            <View className="flex-row items-center bg-white/10 border border-white/15 rounded-2xl px-3.5 py-2.5 mb-3">
-                <Ionicons name="search-sharp" size={16} color="#94A3B8" />
+            <View className="flex-row items-center bg-white border border-[#1C3516]/15 rounded-2xl px-3.5 py-2.5 mb-3 shadow-sm">
+                <Ionicons name="search-sharp" size={16} color="#1C3516" />
                 <TextInput
                     value={searchQuery}
                     onChangeText={onSearchChange}
                     placeholder={`Search in ${activeCategoryTitle}...`}
-                    placeholderTextColor="#64748B"
-                    className="flex-1 ml-2.5 text-white text-xs font-medium p-0"
+                    placeholderTextColor="#94A3B8"
+                    className="flex-1 ml-2.5 text-[#1C3516] text-xs font-medium p-0"
                 />
                 {searchQuery.length > 0 && (
                     <Pressable onPress={() => onSearchChange('')} hitSlop={8}>
-                        <Ionicons name="close-circle" size={16} color="#94A3B8" />
+                        <Ionicons name="close-circle" size={16} color="#1C3516" />
                     </Pressable>
                 )}
             </View>

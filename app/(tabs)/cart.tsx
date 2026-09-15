@@ -152,11 +152,11 @@ export default function CartScreen() {
     };
 
     return (
-        <View className="flex-1 bg-slate-100">
-            <StatusBar style="light" backgroundColor="#0B132B" translucent />
+        <View className="flex-1 bg-[#FDFBF7]">
+            <StatusBar style="dark" backgroundColor="#0B132B" translucent />
 
             {/* Premium Dark Header */}
-            <View className="bg-[#0B132B] pt-12 pb-4 px-4 border-b border-slate-800 shadow-sm">
+            <View className="bg-[#FDFBF7] pt-12 pb-4 px-4 border-b border-[#1C3516]/10 shadow-sm">
                 <View
                     style={{ width: '100%', maxWidth: maxContentWidth }}
                     className="self-center flex-row items-center justify-between"
@@ -165,32 +165,29 @@ export default function CartScreen() {
                         <Pressable
                             hitSlop={8}
                             onPress={() => router.back()}
-                            className="w-9 h-9 rounded-full bg-slate-800/80 items-center justify-center mr-3 active:bg-slate-700"
+                            className="w-9 h-9 rounded-full bg-white border border-[#1C3516]/15 items-center justify-center mr-3 shadow-sm active:bg-slate-50"
                         >
-                            <Ionicons name="chevron-back" size={20} color="#FFFFFF" />
+                            <Ionicons name="chevron-back" size={20} color="#1C3516" />
                         </Pressable>
                         <View>
-                            <Text className="text-white text-lg font-black tracking-tight">
+                            <Text className="text-[#1C3516] text-lg font-black tracking-tight">
                                 Your Cart
                             </Text>
                             {cartItems.length > 0 && (
-                                <Text className="text-slate-400 text-[11px] font-semibold">
+                                <Text className="text-[#1C3516]/60 text-[11px] font-semibold">
                                     {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} selected
                                 </Text>
-
                             )}
                         </View>
                     </View>
-
-
 
                     {cartItems.length > 0 && (
                         <Pressable
                             hitSlop={8}
                             onPress={clearCart}
-                            className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 active:bg-rose-500/20"
+                            className="px-2.5 py-1.5 rounded-lg bg-[#EE9F19]/10 border border-[#EE9F19]/20 active:bg-[#EE9F19]/20"
                         >
-                            <Text className="text-rose-400 text-xs font-bold">Clear All</Text>
+                            <Text className="text-[#EE9F19] text-xs font-bold">Clear All</Text>
                         </Pressable>
                     )}
                 </View>
@@ -231,7 +228,7 @@ export default function CartScreen() {
                         </Text>
                         <Pressable
                             onPress={() => router.replace('/(tabs)/explore' as any)}
-                            className="bg-[#0B132B] px-7 py-3.5 rounded-xl flex-row items-center active:bg-slate-800 shadow-xs"
+                            className="bg-orange-500 px-7 py-3.5 rounded-xl flex-row items-center active:bg-slate-800 shadow-xs"
                         >
                             <Text className="text-white text-xs font-extrabold mr-2">
                                 Start Shopping

@@ -89,8 +89,8 @@ export default function ProfileScreen() {
   const avatarUri = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
 
   return (
-    <View className="flex-1 bg-slate-50">
-      <StatusBar barStyle="light-content" backgroundColor="#0B132B" animated />
+    <View className="flex-1 bg-[#FDFBF7]">
+      <StatusBar barStyle="dark-content" backgroundColor="#FDFBF7" animated />
 
       <ScrollView
         className="flex-1"
@@ -100,14 +100,14 @@ export default function ProfileScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor="#059669"
-            colors={['#059669']}
+            tintColor="#EE9F19"
+            colors={['#EE9F19']}
           />
         }
       >
         {/* HERO BRAND HEADER */}
         <View
-          className="bg-[#0B132B] px-6 rounded-b-[48px] shadow-xl shadow-slate-900/10"
+          className="bg-[#FDFBF7] px-6 rounded-b-[48px] border-b border-[#1C3516]/10 shadow-sm"
           style={{ paddingTop: insets.top + 24, paddingBottom: isTablet ? 56 : 44 }}
         >
           <View className="max-w-4xl mx-auto w-full flex-row items-center justify-between">
@@ -115,34 +115,34 @@ export default function ProfileScreen() {
               <View className="relative shadow-md">
                 <Image
                   source={{ uri: avatarUri }}
-                  className="rounded-2xl bg-slate-800 border-2 border-white/15"
+                  className="rounded-2xl bg-slate-200 border-2 border-[#1C3516]/20"
                   style={{ width: isTablet ? 80 : 64, height: isTablet ? 80 : 64 }}
                 />
                 {Boolean(token) && (
-                  <View className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#0B132B]" />
+                  <View className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#EE9F19] rounded-full border-2 border-[#FDFBF7]" />
                 )}
               </View>
 
               <View className="flex-1 ml-4 md:ml-6 pr-2">
                 {isLoading && Boolean(token) ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" style={{ alignSelf: 'flex-start' }} />
+                  <ActivityIndicator size="small" color="#1C3516" style={{ alignSelf: 'flex-start' }} />
                 ) : isError ? (
                   <Pressable onPress={() => refetch()}>
-                    <Text className="text-red-400 font-medium text-xs">
+                    <Text className="text-[#EE9F19] font-medium text-xs">
                       Failed to load profile. Tap to retry.
                     </Text>
                   </Pressable>
                 ) : (
                   <>
                     <Text
-                      className="text-white font-black tracking-tight"
+                      className="text-[#1C3516] font-black tracking-tight"
                       style={{ fontSize: isTablet ? 24 : 18 }}
                       numberOfLines={1}
                     >
                       {displayName}
                     </Text>
                     <Text
-                      className="text-slate-400 font-medium mt-1"
+                      className="text-[#1C3516]/60 font-medium mt-1"
                       style={{ fontSize: isTablet ? 14 : 12 }}
                       numberOfLines={1}
                     >
@@ -151,7 +151,7 @@ export default function ProfileScreen() {
                     {/* Add GSTIN line here */}
                     {user?.gst_number && (
                       <Text
-                        className="text-emerald-400 font-bold mt-1"
+                        className="text-[#EE9F19] font-bold mt-1"
                         style={{ fontSize: isTablet ? 12 : 10 }}
                         numberOfLines={1}
                       >
@@ -175,9 +175,9 @@ export default function ProfileScreen() {
                     },
                   });
                 }}
-                className="w-10 h-10 bg-white/10 rounded-xl items-center justify-center border border-white/10 active:opacity-70"
+                className="w-10 h-10 bg-white rounded-xl items-center justify-center border border-[#1C3516]/15 shadow-sm active:opacity-70"
               >
-                <Ionicons name="create-outline" size={18} color="white" />
+                <Ionicons name="create-outline" size={18} color="#1C3516" />
               </Pressable>
             )}
           </View>
@@ -186,36 +186,36 @@ export default function ProfileScreen() {
         {/* MAIN CONTAINER */}
         <View className="max-w-4xl mx-auto w-full px-5 -mt-6">
           {/* STATS ROW (ORDERS & DUE AMOUNT) */}
-          <View className="bg-white rounded-3xl p-4 sm:p-5 flex-row justify-between items-center shadow-sm border border-slate-100">
+          <View className="bg-white rounded-3xl p-4 sm:p-5 flex-row justify-between items-center shadow-sm border border-[#1C3516]/10">
             {/* Orders Column */}
             <Pressable
               onPress={() => router.push('/(tabs)/orders')}
-              className="flex-1 items-center py-1 border-r border-slate-100 px-1"
+              className="flex-1 items-center py-1 border-r border-[#1C3516]/10 px-1"
             >
-              <Text className="text-blue-600 text-base md:text-xl font-black tracking-tight text-center">
+              <Text className="text-[#1C3516] text-base md:text-xl font-black tracking-tight text-center">
                 {user?.order_count ?? '0'} Orders
               </Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
+              <Text className="text-[#1C3516]/40 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
                 History
               </Text>
             </Pressable>
 
             {/* Total Order Amount Column */}
             <View className="flex-1 items-center py-1 px-1">
-              <Text className="text-green-600 text-base md:text-xl font-black tracking-tight text-center">
+              <Text className="text-[#1C3516] text-base md:text-xl font-black tracking-tight text-center">
                 ₹{user?.total_order_amount ? Number(user.total_order_amount).toFixed(2) : '0.00'}
               </Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center" numberOfLines={1}>
+              <Text className="text-[#1C3516]/40 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center" numberOfLines={1}>
                 Total Amount
               </Text>
             </View>
 
             {/* Due Amount Column */}
-            <View className="flex-1 items-center py-1 border-r border-slate-100 px-1">
-              <Text className="text-rose-600 text-base md:text-xl font-black tracking-tight text-center">
+            <View className="flex-1 items-center py-1 px-1">
+              <Text className="text-[#EE9F19] text-base md:text-xl font-black tracking-tight text-center">
                 ₹{user?.due_amount ? Number(user.due_amount).toFixed(2) : '0.00'}
               </Text>
-              <Text className="text-slate-400 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
+              <Text className="text-[#1C3516]/40 text-[10px] md:text-xs font-bold uppercase mt-1 tracking-wider text-center">
                 Due Amount
               </Text>
             </View>
@@ -223,24 +223,24 @@ export default function ProfileScreen() {
 
           <Pressable
             onPress={() => router.push('/explore')}
-            className="w-full h-14 bg-emerald-600 active:bg-emerald-700 rounded-2xl flex-row items-center justify-center shadow-md shadow-emerald-600/20 mb-2 mt-2"
+            className="w-full h-14 bg-[#1C3516] active:bg-[#1C3516]/90 rounded-2xl flex-row items-center justify-center shadow-md shadow-[#1C3516]/20 mb-2 mt-2"
           >
-            <Ionicons name="add-circle-outline" size={20} color="white" style={{ marginRight: 8 }} />
-            <Text className="text-white font-black text-xs tracking-wider uppercase">
+            <Ionicons name="add-circle-outline" size={20} color="#EE9F19" style={{ marginRight: 8 }} />
+            <Text className="text-[#EE9F19] font-black text-xs tracking-wider uppercase">
               Create New Order
             </Text>
           </Pressable>
 
           {/* ACCOUNT MANAGEMENT SECTION */}
-          <Text className="text-[#0B132B]/50 font-black text-[11px] md:text-xs uppercase tracking-widest ml-2 mt-8 mb-3">
+          <Text className="text-[#1C3516]/60 font-black text-[11px] md:text-xs uppercase tracking-widest ml-2 mt-8 mb-3">
             Account Management
           </Text>
 
-          <View className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden px-2">
+          <View className="bg-white rounded-3xl border border-[#1C3516]/10 shadow-sm overflow-hidden px-2">
             <ProfileOptionRow
               icon="bag-handle"
-              iconColor="#059669"
-              bgColor="bg-emerald-50"
+              iconColor="#1C3516"
+              bgColor="bg-[#1C3516]/5"
               title="My Orders"
               subtitle="Track order history & invoices"
               onPress={() => router.push('/(tabs)/orders')}
@@ -249,8 +249,8 @@ export default function ProfileScreen() {
 
             <ProfileOptionRow
               icon="settings"
-              iconColor="#475569"
-              bgColor="bg-slate-100"
+              iconColor="#1C3516"
+              bgColor="bg-[#1C3516]/5"
               title="Settings"
               subtitle="App preferences and notifications"
               onPress={() => router.push('/profile/settings')}
@@ -260,15 +260,15 @@ export default function ProfileScreen() {
           </View>
 
           {/* SUPPORT & LEGAL SECTION */}
-          <Text className="text-[#0B132B]/50 font-black text-[11px] md:text-xs uppercase tracking-widest ml-2 mt-8 mb-3">
+          <Text className="text-[#1C3516]/60 font-black text-[11px] md:text-xs uppercase tracking-widest ml-2 mt-8 mb-3">
             Support & Legal
           </Text>
 
-          <View className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden px-2">
+          <View className="bg-white rounded-3xl border border-[#1C3516]/10 shadow-sm overflow-hidden px-2">
             <ProfileOptionRow
               icon="headset"
-              iconColor="#D97706"
-              bgColor="bg-amber-50"
+              iconColor="#EE9F19"
+              bgColor="bg-[#EE9F19]/10"
               title="Help & Support Desk"
               subtitle="24/7 customer service support"
               onPress={() => console.log('Opening Help Desk')}
@@ -276,8 +276,8 @@ export default function ProfileScreen() {
             />
             <ProfileOptionRow
               icon="shield-checkmark"
-              iconColor="#6366F1"
-              bgColor="bg-indigo-50"
+              iconColor="#1C3516"
+              bgColor="bg-[#1C3516]/5"
               title="Privacy Policy"
               subtitle="Review data privacy guidelines"
               onPress={() => router.push('/profile/privacy-policy')}
@@ -285,8 +285,8 @@ export default function ProfileScreen() {
             />
             <ProfileOptionRow
               icon="document-text"
-              iconColor="#EC4899"
-              bgColor="bg-pink-50"
+              iconColor="#1C3516"
+              bgColor="bg-[#1C3516]/5"
               title="Terms & Conditions"
               subtitle="Read platform terms of use"
               onPress={() => router.push('/profile/terms-conditions')}
@@ -301,14 +301,14 @@ export default function ProfileScreen() {
               <Pressable
                 onPress={handleSignOut}
                 disabled={logoutMutation.isPending}
-                className="w-full h-14 bg-red-50 border border-red-200/50 rounded-2xl flex-row items-center justify-center active:bg-red-100/70 active:scale-[0.99]"
+                className="w-full h-14 bg-[#EE9F19]/10 border border-[#EE9F19]/30 rounded-2xl flex-row items-center justify-center active:bg-[#EE9F19]/20 active:scale-[0.99]"
               >
                 {logoutMutation.isPending ? (
-                  <ActivityIndicator color="#EF4444" />
+                  <ActivityIndicator color="#EE9F19" />
                 ) : (
                   <>
-                    <Ionicons name="log-out-outline" size={18} color="#EF4444" />
-                    <Text className="text-red-600 font-black text-sm tracking-tight ml-2">
+                    <Ionicons name="log-out-outline" size={18} color="#ee4b19" />
+                    <Text className="text-[#ee4b19] font-black text-sm tracking-tight ml-2">
                       Sign Out Account
                     </Text>
                   </>
@@ -317,15 +317,15 @@ export default function ProfileScreen() {
             ) : (
               <Pressable
                 onPress={() => router.push('/(auth)/login')}
-                className="w-full h-14 bg-emerald-600 rounded-2xl flex-row items-center justify-center shadow-md shadow-emerald-600/10 active:bg-emerald-700 active:scale-[0.99]"
+                className="w-full h-14 bg-[#1C3516] rounded-2xl flex-row items-center justify-center shadow-md shadow-[#1C3516]/10 active:bg-[#1C3516]/90 active:scale-[0.99]"
               >
-                <Ionicons name="log-in-outline" size={18} color="white" />
-                <Text className="text-white font-black text-sm tracking-tight ml-2">
+                <Ionicons name="log-in-outline" size={18} color="#EE9F19" />
+                <Text className="text-[#EE9F19] font-black text-sm tracking-tight ml-2">
                   Log In or Register
                 </Text>
               </Pressable>
             )}
-            <Text className="text-center text-slate-300 text-[10px] font-bold uppercase tracking-widest mt-6">
+            <Text className="text-center text-[#1C3516]/40 text-[10px] font-bold uppercase tracking-widest mt-6">
               Trumate • v1.2.0
             </Text>
           </View>
@@ -360,8 +360,9 @@ function ProfileOptionRow({
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-row items-center py-4 px-3 active:bg-slate-50 border-b border-slate-100 ${isLast ? 'border-b-0' : ''
-        }`}
+      className={`flex-row items-center py-4 px-3 active:bg-[#1C3516]/5 border-b border-[#1C3516]/10 ${
+        isLast ? 'border-b-0' : ''
+      }`}
     >
       <View
         className={`rounded-xl items-center justify-center ${bgColor}`}
@@ -372,20 +373,20 @@ function ProfileOptionRow({
 
       <View className="flex-1 ml-4 pr-4">
         <Text
-          className="text-[#0B132B] font-black tracking-tight"
+          className="text-[#1C3516] font-black tracking-tight"
           style={{ fontSize: isTablet ? 15 : 13 }}
         >
           {title}
         </Text>
         <Text
-          className="text-slate-400 font-medium mt-0.5 leading-none"
+          className="text-[#1C3516]/50 font-medium mt-0.5 leading-none"
           style={{ fontSize: isTablet ? 12 : 11 }}
         >
           {subtitle}
         </Text>
       </View>
 
-      <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+      <Ionicons name="chevron-forward" size={16} color="#1C3516" />
     </Pressable>
   );
 }

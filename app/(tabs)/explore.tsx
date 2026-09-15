@@ -145,10 +145,10 @@ export default function ExploreScreen() {
   }
 
   return (
-    <View className="flex-1 bg-slate-100 relative">
+    <View className="flex-1 bg-[#FDFBF7] relative">
       <StatusBar
-        style={colorScheme === 'light' ? 'light' : 'dark'}
-        backgroundColor="#0B132B"
+        style={colorScheme === 'dark' ? 'light' : 'dark'}
+        backgroundColor="#FDFBF7"
       />
 
       <ExploreHeader
