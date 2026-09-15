@@ -4,7 +4,7 @@
     "slug": "trumate",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/original.png",
     "scheme": "trumate",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -18,7 +18,7 @@
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#FDFBF7",
-        "foregroundImage": "./assets/images/icon.png"
+        "foregroundImage": "./assets/images/original.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -27,7 +27,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/icon.png"
+      "favicon": "./assets/images/original.png"
     },
     "plugins": [
       "expo-router",
@@ -35,7 +35,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash.png",
-          "resizeMode": "cover",
+          "resizeMode": "contain",
           "backgroundColor": "#FDFBF7",
           "dark": {
             "backgroundColor": "#FDFBF7"
