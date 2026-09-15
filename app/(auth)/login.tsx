@@ -7,6 +7,7 @@ import { MotiView } from "moti";
 import React, { useState } from "react";
 import {
     ActivityIndicator,
+    Image,
     Platform,
     Pressable,
     ScrollView,
@@ -96,31 +97,17 @@ export default function LoginScreen() {
     };
 
     return (
-        <View className="flex-1 bg-white">
-            <StatusBar barStyle="light-content" backgroundColor="#0B132B" />
+        <View className="flex-1 bg-[#FDFBF7]">
+            <StatusBar barStyle="dark-content" backgroundColor="#FDFBF7" />
 
-            {/* Top Gradient Background */}
-            <LinearGradient
-                colors={["#0B132B", "#13224A", "#17336F"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: isTablet ? height * 0.45 : height * 0.42,
-                }}
-            />
-
-            {/* Decorative background shapes */}
+            {/* Subtle soft decorative background shapes matching brand */}
             <View
                 pointerEvents="none"
-                className="absolute -right-20 top-12 h-64 w-64 rounded-full bg-white/5"
+                className="absolute -right-20 top-12 h-64 w-64 rounded-full bg-[#EE9F19]/5"
             />
             <View
                 pointerEvents="none"
-                className="absolute -left-24 top-36 h-56 w-56 rounded-full bg-blue-300/5"
+                className="absolute -left-24 top-36 h-56 w-56 rounded-full bg-[#1C3516]/5"
             />
 
             <SafeAreaView className="flex-1 pt-12">
@@ -136,62 +123,38 @@ export default function LoginScreen() {
                     bounces={false}
                 >
                     <View
-                        className={`w-full ${
-                            isTablet
-                                ? "flex-row items-center justify-center px-12"
-                                : "px-5"
-                        }`}
+                        className={`w-full ${isTablet
+                            ? "flex-row items-center justify-center px-12"
+                            : "px-5"
+                            }`}
                     >
-                        {/* Top branding area */}
+                        {/* Top branding area with large logo */}
                         <MotiView
                             from={{ opacity: 0, translateY: -12 }}
                             animate={{ opacity: 1, translateY: 0 }}
                             transition={{ type: "timing", duration: 500 }}
                             className={
                                 isTablet
-                                    ? "mr-12 max-w-md flex-1"
+                                    ? "mr-12 max-w-md flex-1 items-start"
                                     : "items-center pb-6 pt-2"
                             }
                         >
-                            <View
-                                className={`mb-4 flex-row items-center ${
-                                    isTablet ? "justify-start" : "justify-center"
-                                }`}
-                            >
-                                <View className="h-12 w-12 items-center justify-center rounded-[18px] border border-white/15 bg-white/10">
-                                    <Text className="text-xl font-black tracking-tight text-white">
-                                        A
-                                    </Text>
-                                </View>
-
-                                <View className="ml-3">
-                                    <Text className="text-xl font-black tracking-tight text-white">
-                                        Trumate<Text className="text-[#66A6FF]">Services</Text>
-                                    </Text>
-                                    <Text className="mt-0.5 text-[9px] font-bold uppercase tracking-[2px] text-white/50">
-                                        Enterprise Platform
-                                    </Text>
-                                </View>
+                            {/* Larger Brand Logo */}
+                            <View className="items-center justify-center py-2">
+                                <Image
+                                    source={require("@/assets/images/logo-removed-bg.png")}
+                                    style={{
+                                        width: isTablet ? 400 : 350,
+                                        height: isTablet ? 160 : 125,
+                                    }}
+                                    resizeMode="contain"
+                                />
                             </View>
-
                             <Text
-                                className={`font-black tracking-[-1px] text-white ${
-                                    isTablet
-                                        ? "text-left text-5xl leading-[56px]"
-                                        : isSmallPhone
-                                        ? "text-center text-2xl leading-8"
-                                        : "text-center text-3xl leading-10"
-                                }`}
-                            >
-                                Powered by{"\n"}Trumate.
-                            </Text>
-
-                            <Text
-                                className={`mt-2.5 font-medium leading-5 text-blue-100/70 ${
-                                    isTablet
-                                        ? "max-w-sm text-left text-base"
-                                        : "max-w-[300px] text-center text-xs"
-                                }`}
+                                className={`mt-3 font-medium leading-5 text-[#1C3516]/70 ${isTablet
+                                    ? "max-w-sm text-left text-base"
+                                    : "max-w-[320px] text-center text-xs"
+                                    }`}
                             >
                                 Sign in to access your dashboard, operations, and account settings.
                             </Text>
@@ -202,15 +165,14 @@ export default function LoginScreen() {
                             from={{ opacity: 0, translateY: 28, scale: 0.97 }}
                             animate={{ opacity: 1, translateY: 0, scale: 1 }}
                             transition={{ type: "timing", duration: 550, delay: 120 }}
-                            className={`w-full bg-white ${
-                                isTablet
-                                    ? "max-w-md rounded-[36px] p-10"
-                                    : "rounded-[32px] px-6 py-6"
-                            }`}
+                            className={`w-full bg-white ${isTablet
+                                ? "max-w-md rounded-[36px] p-10"
+                                : "rounded-[32px] px-6 py-6"
+                                }`}
                             style={{
-                                shadowColor: "#0B132B",
+                                shadowColor: "#1C3516",
                                 shadowOffset: { width: 0, height: 12 },
-                                shadowOpacity: 0.08,
+                                shadowOpacity: 0.06,
                                 shadowRadius: 24,
                                 elevation: 8,
                             }}
@@ -220,7 +182,7 @@ export default function LoginScreen() {
                             )}
 
                             <View className="mb-5">
-                                <Text className="text-2xl font-black tracking-tight text-[#0B132B]">
+                                <Text className="text-2xl font-black tracking-tight text-[#1C3516]">
                                     Welcome back
                                 </Text>
                                 <Text className="mt-1 text-xs font-medium leading-5 text-slate-500">
@@ -307,7 +269,7 @@ export default function LoginScreen() {
                                 className="overflow-hidden rounded-[18px]"
                             >
                                 <LinearGradient
-                                    colors={["#0B132B", "#132B59"]}
+                                    colors={["#EE9F19", "#D98A0E"]}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     className="flex-row items-center justify-center px-5"
