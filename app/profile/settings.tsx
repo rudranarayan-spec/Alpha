@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext';
 import { changePasswordService } from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -16,12 +17,14 @@ import {
     View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { toast } from 'sonner-native';
 
 export default function SettingsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
     const isTablet = width >= 768;
+    const { logout } = useAuth();
 
     // Local preferences state engine
     const [preferences, setPreferences] = useState({
@@ -36,7 +39,7 @@ export default function SettingsScreen() {
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    
+
     // Visibility states for eye icons
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
@@ -70,19 +73,23 @@ export default function SettingsScreen() {
             const data = await changePasswordService({
                 current_password: oldPassword,
                 new_password: newPassword,
-                confirm_password: newPassword, // Mapping new password as confirm_password
+                confirm_password: newPassword,
             });
 
             if (data.status === "success") {
-                // // console.log(data.message); // "Password changed successfully"
-
-                // Clear inputs and close dialog on success
+                // Clear inputs and close the dialog immediately
                 setOldPassword('');
                 setNewPassword('');
                 setIsPasswordDialogOpen(false);
+                toast.success("Password changed successfully. You will be logged out in 5 seconds.", {
+                    duration: 2000,
+                });
+
+                setTimeout(async () => {
+                    await logout();
+                }, 5000);
             }
         } catch (error: any) {
-            // console.error('Failed to change password:', error);
             setErrorMessage(error.message || "Failed to change password. Please try again.");
         } finally {
             setIsLoading(false);
@@ -118,9 +125,8 @@ export default function SettingsScreen() {
                 contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
             >
                 <View
-                    className={`max-w-4xl mx-auto w-full px-5 ${
-                        isTablet ? 'flex-row flex-wrap gap-x-6 items-start' : 'flex-col'
-                    }`}
+                    className={`max-w-4xl mx-auto w-full px-5 ${isTablet ? 'flex-row flex-wrap gap-x-6 items-start' : 'flex-col'
+                        }`}
                 >
                     {/* SECTION I: NOTIFICATIONS */}
                     <View style={{ width: isTablet ? '48%' : '100%' }}>
@@ -368,9 +374,8 @@ function SettingSwitchRow({
 }: SettingSwitchRowProps) {
     return (
         <View
-            className={`flex-row items-center justify-between py-4 px-3 border-b border-[#1C3516]/10 ${
-                isLast ? 'border-b-0' : ''
-            }`}
+            className={`flex-row items-center justify-between py-4 px-3 border-b border-[#1C3516]/10 ${isLast ? 'border-b-0' : ''
+                }`}
         >
             <View className="flex-row items-center flex-1 pr-4">
                 <View className={`w-10 h-10 ${bgColor} rounded-xl items-center justify-center`}>
@@ -417,9 +422,8 @@ function SettingActionRow({
     return (
         <Pressable
             onPress={onPress}
-            className={`flex-row items-center py-4 px-3 active:bg-[#1C3516]/5 border-b border-[#1C3516]/10 ${
-                isLast ? 'border-b-0' : ''
-            }`}
+            className={`flex-row items-center py-4 px-3 active:bg-[#1C3516]/5 border-b border-[#1C3516]/10 ${isLast ? 'border-b-0' : ''
+                }`}
         >
             <View className={`w-10 h-10 ${bgColor} rounded-xl items-center justify-center`}>
                 <Ionicons name={icon} size={18} color={iconColor} />

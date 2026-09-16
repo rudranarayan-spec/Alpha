@@ -1,3 +1,4 @@
+import { setAuthTokenGetter, setGlobalLogoutHandler } from "@/lib/api/client";
 import * as SecureStore from "expo-secure-store";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -30,6 +31,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const logout = async () => {
+        setToken(null);
+        setUser(null);
+        await SecureStore.deleteItemAsync("auth_token");
+        await SecureStore.deleteItemAsync("auth_user");
+    };
+
+    // Register token getter and global 401 auto-logout handler for the Axios client
+    useEffect(() => {
+        setAuthTokenGetter(async () => {
+            return await SecureStore.getItemAsync("auth_token");
+        });
+
+        setGlobalLogoutHandler(async () => {
+            await logout();
+        });
+    }, []);
+
     useEffect(() => {
         const loadStoredAuth = async () => {
             try {
@@ -54,13 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(newUser);
         await SecureStore.setItemAsync("auth_token", newToken);
         await SecureStore.setItemAsync("auth_user", JSON.stringify(newUser));
-    };
-
-    const logout = async () => {
-        setToken(null);
-        setUser(null);
-        await SecureStore.deleteItemAsync("auth_token");
-        await SecureStore.deleteItemAsync("auth_user");
     };
 
     return (

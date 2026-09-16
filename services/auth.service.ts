@@ -14,3 +14,16 @@ export const changePasswordService = async (payload: ChangePasswordPayload) => {
     throw error.response?.data || error;
   }
 };
+
+interface ForgotPasswordPayload {
+  email: string;
+}
+
+export const forgotPasswordService = async (payload: ForgotPasswordPayload) => {
+  try {
+    const response = await api.post("/forgot-password", payload);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};

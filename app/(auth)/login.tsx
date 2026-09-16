@@ -1,5 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/client";
+import { forgotPasswordService } from "@/services/auth.service"; // <-- Import the new service
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -78,7 +79,7 @@ export default function LoginScreen() {
                     );
                 }
             } else {
-                console.log("Login failed:", data.message);
+                // console.log("Login failed:", data.message);
                 setErrorMessage(
                     data.message || "Invalid credentials. Please try again."
                 );
@@ -89,7 +90,7 @@ export default function LoginScreen() {
                 }
             }
         } catch (error: any) {
-            console.error("Login Error:", error);
+            // console.error("Login Error:", error);
 
             const serverMessage = error.response?.data?.message;
             setErrorMessage(
@@ -125,21 +126,21 @@ export default function LoginScreen() {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
 
-            const response = await api.post("/forgot-password", {
+            // --- Using the modularized service here ---
+            const data = await forgotPasswordService({
                 email: cleanForgotEmail,
             });
 
-            const data = response.data;
-
             setForgotSuccessMessage(
-                data.message || "Password reset instructions have been sent to your email."
+                data.message || "A new password has been sent to your email address"
             );
+            
             if (Platform.OS !== "web") {
                 await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
         } catch (error: any) {
-            console.error("Forgot Password Error:", error);
-            const serverMessage = error.response?.data?.message;
+            // console.error("Forgot Password Error:", error);
+            const serverMessage = error?.message || error?.response?.data?.message;
             setForgotErrorMessage(
                 serverMessage || "Failed to send reset email. Please try again."
             );

@@ -4,13 +4,19 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { apiLogger } from "./logger";
 
 let authTokenGetter: (() => Promise<string | null>) | null = null;
+let globalLogoutHandler: (() => Promise<void>) | null = null; // <-- Added
 
 export const setAuthTokenGetter = (getter: () => Promise<string | null>) => {
   authTokenGetter = getter;
 };
 
+// <-- Added setter for logout
+export const setGlobalLogoutHandler = (logoutFn: () => Promise<void>) => {
+  globalLogoutHandler = logoutFn;
+};
+
 const api = axios.create({
-  baseURL: API_CONFIG.BASE_URL, // Ensure this is "http://192.168.29.213:8080/api/v1"
+  baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
@@ -39,7 +45,6 @@ api.interceptors.response.use(
       response.config.url,
       response.status,
     );
-
     return response;
   },
   async (error: AxiosError<any>) => {
@@ -49,6 +54,17 @@ api.interceptors.response.use(
       error.response?.status,
       error.response?.data?.message || error.message,
     );
+
+    // --- Added: Catch 401 Unauthorized and trigger global logout ---
+    if (error.response?.status === 401) {
+      try {
+        if (globalLogoutHandler) {
+          await globalLogoutHandler();
+        }
+      } catch (logoutError) {
+        console.error("Error executing global logout on 401:", logoutError);
+      }
+    }
 
     return Promise.reject(error);
   },
