@@ -113,7 +113,10 @@ export default function CartScreen() {
                             router.replace('/(tabs)/' as any);
                         }, 5000);
                     } catch (error) {
-                        console.error('Failed to create order via API:', error);
+                        // console.error('Failed to create order via API:', error);
+                        toast.error('Failed to place order. Please try again later.', {
+                            duration: 4000,
+                        });
                         setIsPlacingOrder(false);
                         setOrderSuccess(false);
                     }

@@ -48,7 +48,8 @@
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
-          "color": "#FFFFFF"
+          "color": "#1C3516",
+          "sounds": ["./android/app/src/main/res/raw/notification_sound.mp3"]
         }
       ]
     ],

@@ -5,6 +5,7 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
+import { toast } from "sonner-native";
 
 export function usePushNotifications() {
   const { user, token } = useAuth();
@@ -17,17 +18,17 @@ export function usePushNotifications() {
 
   useEffect(() => {
     const registerAndSyncToken = async () => {
-      // 1. Authentication Interceptor
       if (!isAuthenticated || !token) return;
 
       try {
-        // 2. Android High-Priority Notification Channel Setup
+        // 2. Android High-Priority Notification Channel Setup with Custom Sound
         if (Platform.OS === "android") {
           await Notifications.setNotificationChannelAsync("default", {
             name: "Default Operations",
             importance: Notifications.AndroidImportance.MAX,
             vibrationPattern: [0, 250, 250, 250],
-            lightColor: "#2563EB",
+            lightColor: "#EE9F19", // Matching your app's warm accent theme
+            sound: "notification_sound.mp3", // Note: Android looks inside res/raw/ without extension or with depending on config, but usually just the filename or filename without extension. Let's use "notification_sound.mp3" or "notification_sound".
           });
         }
 
@@ -69,11 +70,10 @@ export function usePushNotifications() {
           console.log("EXPO PUSH TOKEN:", pushToken);
           console.log("===========================================\n");
 
-          // Resolve precise Device Name (e.g. "Pixel 6a", "John's iPhone")
           const deviceName =
             Device.modelName || Device.deviceName || `${Platform.OS} Device`;
 
-          // 6. Register Token with Backend API matching exact schema
+          // 6. Register Token with Backend API
           const response = await api.post("/notifications/register-token", {
             push_token: pushToken,
             platform: Platform.OS,
@@ -84,32 +84,38 @@ export function usePushNotifications() {
             console.log(
               "[Push] Device token successfully bound to user profile.",
             );
-          } else {
-            console.error(
-              "[Push] Remote enrollment failed with status:",
-              response.status,
-            );
           }
         }
       } catch (error) {
-        console.error(
-          "[Push] Production setup pipeline encountered an error:",
-          error,
-        );
+        // Handle error silently or log if needed
       }
     };
 
     registerAndSyncToken();
 
-    // Attach Foreground Notification Listeners
+    // Attach Foreground Notification Listeners & Toast Trigger
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         console.log("[Push] Foreground Notification Received:", notification);
+
+        const title = notification.request.content.title || "New Notification";
+        const body = notification.request.content.body;
+
+        // Display visual toast message using sonner-native
+        if (body) {
+          toast.success(body, {
+            description: title,
+            duration: 4000,
+          });
+        } else {
+          toast.info(title);
+        }
       });
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log("[Push] Notification Response (User Tapped):", response);
+        // Handle deep linking or screen routing on tap here if needed
       });
 
     return () => {
