@@ -169,13 +169,20 @@ export default function CartScreen() {
                         >
                             <Ionicons name="chevron-back" size={20} color="#1C3516" />
                         </Pressable>
-                        <View>
-                            <Text className="text-[#1C3516] text-lg font-black tracking-tight">
+                        <View className="flex-row items-center flex-wrap">
+                            <Text
+                                className="text-[#1C3516] text-lg font-black tracking-tight"
+                                numberOfLines={1}
+                            >
                                 Your Cart
                             </Text>
+
                             {cartItems.length > 0 && (
-                                <Text className="text-[#1C3516]/60 text-[11px] font-semibold">
-                                    {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} selected
+                                <Text
+                                    className="text-[#1C3516]/60 text-[11px] font-semibold ml-2"
+                                    numberOfLines={1}
+                                >
+                                    ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''} selected)
                                 </Text>
                             )}
                         </View>

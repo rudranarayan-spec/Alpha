@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Linking,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -18,6 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api/client';
+import { toast } from 'sonner-native';
 
 interface UserProfile {
   id: number;
@@ -72,6 +74,27 @@ export default function ProfileScreen() {
       await logout();
     },
   });
+
+  const handleOpenDialer = async () => {
+    const phoneNumber = "tel:8260348598";
+
+    try {
+        const supported = await Linking.canOpenURL(phoneNumber);
+
+        if (supported) {
+            await Linking.openURL(phoneNumber);
+        } else {
+            toast.error("Not Supported", {
+                description: "Your device does not support making phone calls.",
+            });
+        }
+    } catch (error) {
+        console.error("Failed to open dialer:", error);
+        toast.error("Error", {
+            description: "Could not open phone dialer.",
+        });
+    }
+};
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to log out?', [
@@ -271,7 +294,7 @@ export default function ProfileScreen() {
               bgColor="bg-[#EE9F19]/10"
               title="Help & Support Desk"
               subtitle="24/7 customer service support"
-              onPress={() => console.log('Opening Help Desk')}
+              onPress={handleOpenDialer}
               isTablet={isTablet}
             />
             <ProfileOptionRow

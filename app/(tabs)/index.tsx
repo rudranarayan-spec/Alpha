@@ -16,15 +16,16 @@ import {
   useWindowDimensions,
   View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const contentMaxWidth = isTablet ? 720 : width;
+  
   const setDueAmount = useCartStore((state) => state.setDueAmount);
-
-
   const totalCartItems = useCartStore((state) => state.getTotalItemsCount());
 
   // 1. Fetch Dashboard Metrics
@@ -82,22 +83,27 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-[#FDFBF7]">
-      <StatusBar style="dark" backgroundColor="#FDFBF7" />
+      <StatusBar style="dark" backgroundColor="#FBEFDE" />
 
-      {/* Header */}
-      <View className="bg-[#FBEFDE] pt-14 pb-5 px-5 border-b border-[#1C3516]/10">
+      {/* Dynamic Safe-Area Header */}
+      <View 
+        className="bg-[#FBEFDE] px-5 pb-5 border-b border-[#1C3516]/10 shadow-xs z-10"
+        style={{ paddingTop: insets.top + 10 }}
+      >
         <View style={{ width: '100%', maxWidth: contentMaxWidth }} className="self-center flex-row items-center justify-between">
-          <View>
-            <Text className="text-[#f88909] text-[11px] font-medium tracking-tight">Welcome back,</Text>
-
-            <Text className="text-[#1C3516] text-lg font-black tracking-tight">
+          <View className="flex-1 pr-3">
+            <Text className="text-[#f88909] text-[11px] font-medium tracking-tight" numberOfLines={1}>
+              Welcome back,
+            </Text>
+            <Text className="text-[#1C3516] text-lg font-black tracking-tight" numberOfLines={1}>
               {dashboard?.user_name || 'Loading...'}
             </Text>
           </View>
+
           <View className="flex-row items-center space-x-3">
             <Pressable
               onPress={() => router.push('/cart' as any)}
-              className="w-10 h-10 rounded-xl bg-white items-center justify-center border border-[#1C3516]/15 shadow-sm active:bg-slate-50 relative"
+              className="w-10 h-10 rounded-xl bg-white items-center justify-center border border-[#1C3516]/15 shadow-sm active:opacity-75 relative"
             >
               <Ionicons name="cart-outline" size={20} color="#1C3516" />
 
@@ -112,7 +118,7 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => router.push('/profile' as any)}
-              className="w-10 h-10 rounded-xl bg-orange-200 items-center justify-center border border-[#1C3516]/15 shadow-sm active:bg-slate-50 ml-3"
+              className="w-10 h-10 rounded-xl bg-orange-200 items-center justify-center border border-[#1C3516]/15 shadow-sm active:opacity-75 ml-3"
             >
               <Ionicons name="person-outline" size={19} color="#1C3516" />
             </Pressable>
@@ -130,7 +136,7 @@ export default function HomeScreen() {
       >
         <View style={{ width: '100%', maxWidth: contentMaxWidth }} className="self-center px-4 pt-5">
 
-          {/* Key Metrics Dashboard Card */}
+          {/* Key Metrics Dashboard Card with Safe Text Truncation */}
           <View className="bg-[#FDFBF7] rounded-3xl p-5 shadow-lg border border-[#1C3516]/10 relative overflow-hidden mb-4">
             <View className="absolute -right-6 -bottom-6 w-32 h-32 bg-[#EE9F19]/10 rounded-full blur-2xl" />
             <Text className="text-[#1C3516]/60 text-[10px] font-black uppercase tracking-widest mb-3">
@@ -142,7 +148,7 @@ export default function HomeScreen() {
                 <Text className="text-[#1C3516]/70 text-[11px] font-semibold mb-1" numberOfLines={1}>
                   Orders
                 </Text>
-                <Text className="text-[#1C3516] text-lg font-black tracking-tight">
+                <Text className="text-[#1C3516] text-lg font-black tracking-tight" numberOfLines={1}>
                   {dashboard?.total_orders ?? 0}
                 </Text>
               </View>
@@ -172,7 +178,7 @@ export default function HomeScreen() {
           {/* High-End Modern Action Banner */}
           <Pressable
             onPress={() => router.push('/(tabs)/explore' as any)}
-            className="bg-emerald-900 rounded-3xl p-4 flex-row items-center justify-between shadow-xl mb-6 border border-emerald-500/40 relative overflow-hidden active:opacity-95"
+            className="bg-emerald-900 rounded-3xl p-4 flex-row items-center justify-between shadow-xl mb-6 border border-emerald-500/40 relative overflow-hidden active:opacity-90"
           >
             <View className="absolute inset-0 bg-emerald-800/40" />
 
@@ -181,13 +187,15 @@ export default function HomeScreen() {
                 <Ionicons name="add" size={22} color="#FFFFFF" />
               </View>
               <View className="flex-1">
-                <View className="flex-row items-center space-x-2 mb-0.5 gap-2">
-                  <Text className="text-white text-xs font-black uppercase tracking-wider">Place New Order</Text>
+                <View className="flex-row items-center space-x-2 mb-0.5 gap-2 flex-wrap">
+                  <Text className="text-white text-xs font-black uppercase tracking-wider" numberOfLines={1}>
+                    Place New Order
+                  </Text>
                   <View className="bg-emerald-500/40 px-1.5 py-0.5 rounded text-[9px] border border-emerald-400/30">
                     <Text className="text-emerald-200 text-[9px] font-bold">INSTANT</Text>
                   </View>
                 </View>
-                <Text className="text-emerald-100/90 text-[11px] font-medium leading-tight">
+                <Text className="text-emerald-100/90 text-[11px] font-medium leading-tight" numberOfLines={1}>
                   Explore certified organic spices & eco-catalog
                 </Text>
               </View>
@@ -203,7 +211,7 @@ export default function HomeScreen() {
             <Text className="text-slate-900 text-xs font-black uppercase tracking-wider">
               Recent Orders
             </Text>
-            <Pressable onPress={() => router.push('/(tabs)/orders' as any)}>
+            <Pressable onPress={() => router.push('/(tabs)/orders' as any)} className="active:opacity-70">
               <Text className="text-emerald-700 text-xs font-bold">View All</Text>
             </Pressable>
           </View>
@@ -214,19 +222,21 @@ export default function HomeScreen() {
                 <Pressable
                   key={order.id}
                   onPress={() => router.push('/(tabs)/orders' as any)}
-                  className={`flex-row items-center justify-between p-3 ${index !== dashboard.latest_orders.length - 1 ? 'border-b border-slate-100' : ''}`}
+                  className={`flex-row items-center justify-between p-3 active:bg-slate-50 rounded-xl ${
+                    index !== dashboard.latest_orders.length - 1 ? 'border-b border-slate-100' : ''
+                  }`}
                 >
                   <View className="flex-row items-center flex-1 mr-3">
                     <View className="w-9 h-9 rounded-xl bg-slate-100 items-center justify-center mr-3 border border-slate-200">
                       <Ionicons name="receipt-outline" size={16} color="#0F172A" />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-slate-900 text-xs font-bold">{order.order_number}</Text>
-                      <Text className="text-slate-400 text-[11px] mt-0.5">{order.order_date}</Text>
+                      <Text className="text-slate-900 text-xs font-bold" numberOfLines={1}>{order.order_number}</Text>
+                      <Text className="text-slate-400 text-[11px] mt-0.5" numberOfLines={1}>{order.order_date}</Text>
                     </View>
                   </View>
                   <View className="items-end">
-                    <Text className="text-emerald-700 text-xs font-black mb-1">
+                    <Text className="text-emerald-700 text-xs font-black mb-1" numberOfLines={1}>
                       ₹{parseFloat(order.amount).toFixed(2)}
                     </Text>
                     {getStatusBadge(order.status)}
@@ -245,7 +255,7 @@ export default function HomeScreen() {
             <Text className="text-slate-900 text-xs font-black uppercase tracking-wider">
               Featured Categories
             </Text>
-            <Pressable onPress={() => router.replace('/(tabs)/explore' as any)}>
+            <Pressable onPress={() => router.replace('/(tabs)/explore' as any)} className="active:opacity-70">
               <Text className="text-emerald-700 text-xs font-bold">Explore More</Text>
             </Pressable>
           </View>
@@ -273,8 +283,8 @@ export default function HomeScreen() {
                     {category.title}
                   </Text>
                   <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-slate-100">
-                    <Text className="text-slate-400 text-[11px] font-medium">Items</Text>
-                    <Text className="text-emerald-700 text-xs font-semibold">
+                    <Text className="text-slate-400 text-[11px] font-medium" numberOfLines={1}>Items</Text>
+                    <Text className="text-emerald-700 text-xs font-semibold" numberOfLines={1}>
                       {category.products_count ?? 0} Available
                     </Text>
                   </View>

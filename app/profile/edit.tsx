@@ -28,6 +28,8 @@ export default function UpdateProfileScreen() {
             router.back();
         },
         onError: (error: any) => {
+            console.log('FULL 422 ERROR RESPONSE:', JSON.stringify(error?.response?.data, null, 2));
+
             const responseData = error?.response?.data;
             if (responseData?.errors) {
                 const errorKeys = Object.keys(responseData.errors);
@@ -61,9 +63,9 @@ export default function UpdateProfileScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-slate-50"
+            className="flex-1 bg-[#FDFBF7]"
         >
-            <StatusBar style="dark" backgroundColor="#F8FAFC" />
+            <StatusBar style="dark" backgroundColor="#FDFBF7" />
 
             <ScrollView
                 contentContainerStyle={{
@@ -78,54 +80,56 @@ export default function UpdateProfileScreen() {
                 <View className="flex-row items-center mb-6">
                     <Pressable
                         onPress={() => router.back()}
-                        className="w-11 h-11 rounded-2xl bg-white border border-slate-200 items-center justify-center mr-3.5 shadow-xs active:bg-slate-100"
+                        className="w-11 h-11 rounded-2xl bg-white border border-[#1C3516]/15 items-center justify-center mr-3.5 shadow-xs active:bg-orange-50"
                     >
-                        <Ionicons name="arrow-back" size={20} color="#0F172A" />
+                        <Ionicons name="arrow-back" size={20} color="#1C3516" />
                     </Pressable>
                     <View className="flex-1">
-                        <Text className="text-slate-900 text-lg font-black tracking-tight">Edit Profile</Text>
-                        <Text className="text-slate-500 text-xs font-medium">Update your billing and contact details</Text>
+                        <Text className="text-[#1C3516] text-lg font-black tracking-tight">Edit Profile</Text>
+                        <Text className="text-[#1C3516]/60 text-xs font-medium">Update your billing and contact details</Text>
                     </View>
                 </View>
 
                 {/* Form Card Container */}
-                <View className="bg-white border border-slate-200/80 rounded-3xl p-5 mb-6 shadow-sm">
+                <View className="bg-white border border-[#1C3516]/10 rounded-3xl p-5 mb-6 shadow-sm relative overflow-hidden">
+                    <View className="absolute -right-8 -bottom-8 w-28 h-28 bg-[#EE9F19]/10 rounded-full blur-2xl" />
+
                     {/* Billing Name Field */}
                     <View className="mb-4">
-                        <Text className="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Billing Name</Text>
-                        <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 h-14">
-                            <Ionicons name="person-outline" size={18} color="#64748B" style={{ marginRight: 10 }} />
+                        <Text className="text-[#1C3516]/70 text-xs font-bold uppercase tracking-wider mb-2">Billing Name</Text>
+                        <View className="flex-row items-center bg-[#FDFBF7] border border-[#1C3516]/15 rounded-2xl px-4 h-14">
+                            <Ionicons name="person-outline" size={18} color="#1C3516" style={{ marginRight: 10, opacity: 0.6 }} />
                             <TextInput
                                 value={billingName}
                                 onChangeText={setBillingName}
                                 placeholder="Enter full name"
                                 placeholderTextColor="#94A3B8"
-                                className="flex-1 text-slate-900 text-sm font-semibold"
+                                className="flex-1 text-[#1C3516] text-sm font-semibold"
                             />
                         </View>
                     </View>
 
                     {/* Phone Number Field */}
                     <View className="mb-4">
-                        <Text className="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Phone Number</Text>
-                        <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 h-14">
-                            <Ionicons name="call-outline" size={18} color="#64748B" style={{ marginRight: 10 }} />
+                        <Text className="text-[#1C3516]/70 text-xs font-bold uppercase tracking-wider mb-2">Phone Number</Text>
+                        <View className="flex-row items-center bg-[#FDFBF7] border border-[#1C3516]/15 rounded-2xl px-4 h-14">
+                            <Ionicons name="call-outline" size={18} color="#1C3516" style={{ marginRight: 10, opacity: 0.6 }} />
                             <TextInput
                                 value={phone}
                                 onChangeText={setPhone}
                                 placeholder="Enter phone number"
                                 placeholderTextColor="#94A3B8"
                                 keyboardType="phone-pad"
-                                className="flex-1 text-slate-900 text-sm font-semibold"
+                                className="flex-1 text-[#1C3516] text-sm font-semibold"
                             />
                         </View>
                     </View>
 
                     {/* Billing Address Field */}
                     <View className="mb-1">
-                        <Text className="text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Billing Address</Text>
-                        <View className="flex-row items-start bg-slate-50 border border-slate-200 rounded-2xl p-4 min-h-[100px]">
-                            <Ionicons name="location-outline" size={18} color="#64748B" style={{ marginRight: 10, marginTop: 2 }} />
+                        <Text className="text-[#1C3516]/70 text-xs font-bold uppercase tracking-wider mb-2">Billing Address</Text>
+                        <View className="flex-row items-start bg-[#FDFBF7] border border-[#1C3516]/15 rounded-2xl p-4 min-h-[100px]">
+                            <Ionicons name="location-outline" size={18} color="#1C3516" style={{ marginRight: 10, marginTop: 2, opacity: 0.6 }} />
                             <TextInput
                                 value={billingAddress}
                                 onChangeText={setBillingAddress}
@@ -134,7 +138,7 @@ export default function UpdateProfileScreen() {
                                 multiline
                                 numberOfLines={3}
                                 textAlignVertical="top"
-                                className="flex-1 text-slate-900 text-sm font-semibold pt-0"
+                                className="flex-1 text-[#1C3516] text-sm font-semibold pt-0"
                             />
                         </View>
                     </View>
@@ -144,7 +148,7 @@ export default function UpdateProfileScreen() {
                 <Pressable
                     onPress={handleSubmit}
                     disabled={updateMutation.isPending}
-                    className="bg-emerald-600 active:bg-emerald-700 h-14 rounded-2xl flex-row items-center justify-center shadow-md shadow-emerald-600/20"
+                    className="bg-[#1C3516] active:opacity-90 h-14 rounded-2xl flex-row items-center justify-center shadow-lg shadow-[#1C3516]/20"
                 >
                     {updateMutation.isPending ? (
                         <ActivityIndicator size="small" color="#FFFFFF" />

@@ -212,7 +212,7 @@ export default function OrdersScreen() {
           <View className="flex-row items-center">
             <Pressable
               hitSlop={8}
-              onPress={() => router.back()}
+              onPress={() => router.replace('/(tabs)/profile' as any)}
               className="w-9 h-9 rounded-full bg-[#1C3516] items-center justify-center mr-3 active:opacity-90"
             >
               <Ionicons name="chevron-back" size={20} color="#EE9F19" />

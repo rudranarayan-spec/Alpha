@@ -1,6 +1,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { changePasswordService } from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -46,6 +47,41 @@ export default function SettingsScreen() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isClearingCache, setIsClearingCache] = useState(false);
+
+    const handleClearCache = async () => {
+        if (isClearingCache) return;
+
+        try {
+            setIsClearingCache(true);
+            const keys = await AsyncStorage.getAllKeys();
+            const keysToClear = keys.filter(
+                (key) => key !== "auth_token" && key !== "auth_user"
+            );
+
+            if (keysToClear.length > 0) {
+                await AsyncStorage.multiRemove(keysToClear);
+            }
+
+            // Or if you are using standard cache clearing libraries:
+            // await CacheManager.clearCache();
+
+            // Trigger Sonner Toast Success Feedback
+            toast.success("Cache Cleared", {
+                description: "Local system data and temporary profiles removed.",
+                duration: 3000,
+            });
+        } catch (error) {
+            console.error("Failed to clear cache:", error);
+
+            // Trigger Sonner Toast Error Feedback
+            toast.error("Action Failed", {
+                description: "Could not clear application cache. Please try again.",
+            });
+        } finally {
+            setIsClearingCache(false);
+        }
+    };
 
     const togglePreference = (key: keyof typeof preferences) => {
         setPreferences(prev => ({ ...prev, [key]: !prev[key] }));
@@ -112,7 +148,11 @@ export default function SettingsScreen() {
                     >
                         <Ionicons name="arrow-back" size={18} color="#EE9F19" />
                     </Pressable>
-                    <Text className="text-orange-500 text-lg md:text-xl font-black ml-4 tracking-tight">
+
+                    <Text
+                        className="flex-1 text-orange-500 text-lg md:text-xl font-black ml-4 tracking-tight"
+                        numberOfLines={1}
+                    >
                         App Settings
                     </Text>
                 </View>
@@ -152,16 +192,7 @@ export default function SettingsScreen() {
                                 value={preferences.emailUpdates}
                                 onToggle={() => togglePreference('emailUpdates')}
                             />
-                            <SettingSwitchRow
-                                icon="time"
-                                iconColor="#EE9F19"
-                                bgColor="bg-[#EE9F19]/10"
-                                title="Tracking Alerts"
-                                subtitle="Live technician routing pings"
-                                value={preferences.orderTrackingAlerts}
-                                onToggle={() => togglePreference('orderTrackingAlerts')}
-                                isLast
-                            />
+
                         </View>
                     </View>
 
@@ -171,7 +202,7 @@ export default function SettingsScreen() {
                             Security & Privacy
                         </Text>
                         <View className="bg-white rounded-3xl border border-[#1C3516]/10 shadow-sm overflow-hidden px-2">
-                            <SettingSwitchRow
+                            {/* <SettingSwitchRow
                                 icon="finger-print"
                                 iconColor="#1C3516"
                                 bgColor="bg-[#1C3516]/5"
@@ -188,7 +219,7 @@ export default function SettingsScreen() {
                                 subtitle="Auto-detect closest active regional specialists"
                                 value={preferences.locationSync}
                                 onToggle={() => togglePreference('locationSync')}
-                            />
+                            /> */}
                             <SettingActionRow
                                 icon="refresh-circle"
                                 iconColor="#EF4444"
@@ -213,9 +244,9 @@ export default function SettingsScreen() {
                                 bgColor="bg-red-50"
                                 title="Clear Application Cache"
                                 subtitle="Removes local system data copies temporary profiles"
-                                onPress={() => console.log('Cache Purged Successfully')}
+                                onPress={handleClearCache}
                             />
-                            <SettingActionRow
+                            {/* <SettingActionRow
                                 icon="cloud-download"
                                 iconColor="#EE9F19"
                                 bgColor="bg-[#EE9F19]/10"
@@ -223,7 +254,7 @@ export default function SettingsScreen() {
                                 subtitle="Export historical billing summaries and metrics data"
                                 onPress={() => console.log('Initiating Secure JSON Stream')}
                                 isLast
-                            />
+                            /> */}
                         </View>
                     </View>
                 </View>
