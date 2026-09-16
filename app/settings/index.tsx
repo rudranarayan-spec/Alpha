@@ -28,7 +28,7 @@ export default function SettingsScreen() {
     return (
         <View className="flex-1 bg-slate-50">
             {/* 1. TOP PREMIUM HEADER */}
-            <View className="bg-[#0B132B] pt-14 pb-6 px-6 rounded-b-[32px] shadow-md flex-row items-center">
+            <View className="bg-[#e2df1d] pt-14 pb-6 px-6 rounded-b-[32px] shadow-md flex-row items-center">
                 <Pressable
                     onPress={() => router.back()}
                     className="w-10 h-10 bg-white/10 border border-white/10 rounded-xl items-center justify-center mr-4 active:scale-95"

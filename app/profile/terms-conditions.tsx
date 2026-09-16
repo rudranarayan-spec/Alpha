@@ -11,12 +11,12 @@ export default function TermsConditionsScreen() {
   const isTablet = width >= 768;
 
   return (
-    <View className="flex-1 bg-slate-50">
-      <StatusBar barStyle="light-content" backgroundColor="#0B132B" animated />
+    <View className="flex-1 bg-[#FDFBF7]">
+      <StatusBar barStyle="dark-content" backgroundColor="#0B132B" animated />
 
       {/* BRAND THEME HEADER ARC */}
       <View 
-        className="bg-[#0B132B] px-6 rounded-b-[40px] shadow-xl shadow-slate-900/10 z-10"
+        className="bg-[#FDFBF7] px-6 rounded-b-[40px] shadow-xl shadow-slate-900/10 z-10"
         style={{ paddingTop: insets.top + 16, paddingBottom: 36 }}
       >
         <View className="max-w-4xl mx-auto w-full flex-row items-center">
@@ -24,9 +24,9 @@ export default function TermsConditionsScreen() {
             onPress={() => router.back()}
             className="w-10 h-10 bg-white/10 rounded-xl items-center justify-center border border-white/10 active:opacity-70"
           >
-            <Ionicons name="arrow-back" size={18} color="white" />
+            <Ionicons name="arrow-back" size={18} color="#EE9F19" />
           </Pressable>
-          <Text className="text-white text-lg md:text-xl font-black ml-4 tracking-tight">
+          <Text className="text-orange-500 text-lg md:text-xl font-black ml-4 tracking-tight">
             Terms & Conditions
           </Text>
         </View>

@@ -111,8 +111,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Product Details */}
         <Text
           numberOfLines={2}
-          className={`text-xs font-bold leading-4 min-h-[32px] mb-1.5 ${
-            isOutOfStock ? 'text-slate-400' : 'text-[#0B132B]'
+          className={`text-base font-bold leading-4 min-h-[22px] mb-1.5 ${
+            isOutOfStock ? 'text-slate-400' : 'text-black-500'
           }`}
         >
           {product.product_name}
@@ -121,7 +121,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Pricing */}
         <View className="flex-row items-baseline mb-2.5">
           <Text
-            className={`text-xs font-black ${
+            className={`text-sm font-black ${
               isOutOfStock ? 'text-slate-400' : 'text-slate-900'
             }`}
           >
