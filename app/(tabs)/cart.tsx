@@ -1,4 +1,5 @@
 import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AnimatePresence, MotiView } from 'moti';
@@ -106,6 +107,21 @@ export default function CartScreen() {
                         setCreatedOrderId(newOrderId || null);
                         setOrderSuccess(true);
                         clearCart();
+
+                        try {
+                            const { sound } = await Audio.Sound.createAsync(
+                                require('@/assets/notifications/success_sound.mp3')
+                            );
+                            await sound.playAsync();
+
+                            sound.setOnPlaybackStatusUpdate((status) => {
+                                if (status.isLoaded && status.didJustFinish) {
+                                    sound.unloadAsync();
+                                }
+                            });
+                        } catch (soundError) {
+                            console.log('Error playing success sound:', soundError);
+                        }
 
                         setTimeout(() => {
                             setOrderSuccess(false);
