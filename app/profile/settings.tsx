@@ -1,3 +1,4 @@
+import { changePasswordService } from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -35,34 +36,54 @@ export default function SettingsScreen() {
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    
+    // Visibility states for eye icons
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const togglePreference = (key: keyof typeof preferences) => {
         setPreferences(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
+    const handleOpenPasswordDialog = () => {
+        setOldPassword('');
+        setNewPassword('');
+        setShowOldPassword(false);
+        setShowNewPassword(false);
+        setErrorMessage(null);
+        setIsPasswordDialogOpen(true);
+    };
+
     const handleChangePassword = async () => {
         if (!oldPassword || !newPassword) {
-            console.log('Please fill in all fields');
+            setErrorMessage("Please fill in all fields");
             return;
         }
 
         setIsLoading(true);
-        try {
-            // TODO: Integrate your change password API here
-            // const response = await api.changePassword({ oldPassword, newPassword });
-            
-            console.log('Password change API payload:', { oldPassword, newPassword });
-            
-            // Simulating API network delay
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+        setErrorMessage(null);
 
-            // Clear inputs and close dialog on success
-            setOldPassword('');
-            setNewPassword('');
-            setIsPasswordDialogOpen(false);
-        } catch (error) {
-            console.error('Failed to change password:', error);
+        try {
+            const data = await changePasswordService({
+                current_password: oldPassword,
+                new_password: newPassword,
+                confirm_password: newPassword, // Mapping new password as confirm_password
+            });
+
+            if (data.status === "success") {
+                // // console.log(data.message); // "Password changed successfully"
+
+                // Clear inputs and close dialog on success
+                setOldPassword('');
+                setNewPassword('');
+                setIsPasswordDialogOpen(false);
+            }
+        } catch (error: any) {
+            // console.error('Failed to change password:', error);
+            setErrorMessage(error.message || "Failed to change password. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -168,7 +189,7 @@ export default function SettingsScreen() {
                                 bgColor="bg-red-50"
                                 title="Change Password"
                                 subtitle="Change your account password to a new secure value"
-                                onPress={() => setIsPasswordDialogOpen(true)}
+                                onPress={handleOpenPasswordDialog}
                                 isLast
                             />
                         </View>
@@ -237,30 +258,58 @@ export default function SettingsScreen() {
                                 <Text className="text-[#1C3516] text-xs font-bold uppercase tracking-wider mb-1.5 ml-1">
                                     Old Password
                                 </Text>
-                                <TextInput
-                                    secureTextEntry
-                                    placeholder="Enter old password"
-                                    placeholderTextColor="#94A3B8"
-                                    value={oldPassword}
-                                    onChangeText={setOldPassword}
-                                    className="bg-[#FDFBF7] border border-[#1C3516]/15 rounded-2xl px-4 py-3.5 text-[#1C3516] text-sm"
-                                />
+                                <View className="flex-row items-center bg-[#FDFBF7] border border-[#1C3516]/15 rounded-2xl px-4 py-3.5">
+                                    <TextInput
+                                        secureTextEntry={!showOldPassword}
+                                        placeholder="Enter old password"
+                                        placeholderTextColor="#94A3B8"
+                                        value={oldPassword}
+                                        onChangeText={setOldPassword}
+                                        className="flex-1 text-[#1C3516] text-sm p-0 m-0"
+                                    />
+                                    <Pressable onPress={() => setShowOldPassword(!showOldPassword)} hitSlop={8}>
+                                        <Ionicons
+                                            name={showOldPassword ? "eye-off" : "eye"}
+                                            size={18}
+                                            color="#94A3B8"
+                                        />
+                                    </Pressable>
+                                </View>
                             </View>
 
                             {/* New Password Input */}
-                            <View className="mb-6">
+                            <View className="mb-4">
                                 <Text className="text-[#1C3516] text-xs font-bold uppercase tracking-wider mb-1.5 ml-1">
                                     New Password
                                 </Text>
-                                <TextInput
-                                    secureTextEntry
-                                    placeholder="Enter new password"
-                                    placeholderTextColor="#94A3B8"
-                                    value={newPassword}
-                                    onChangeText={setNewPassword}
-                                    className="bg-[#FDFBF7] border border-[#1C3516]/15 rounded-2xl px-4 py-3.5 text-[#1C3516] text-sm"
-                                />
+                                <View className="flex-row items-center bg-[#FDFBF7] border border-[#1C3516]/15 rounded-2xl px-4 py-3.5">
+                                    <TextInput
+                                        secureTextEntry={!showNewPassword}
+                                        placeholder="Enter new password"
+                                        placeholderTextColor="#94A3B8"
+                                        value={newPassword}
+                                        onChangeText={setNewPassword}
+                                        className="flex-1 text-[#1C3516] text-sm p-0 m-0"
+                                    />
+                                    <Pressable onPress={() => setShowNewPassword(!showNewPassword)} hitSlop={8}>
+                                        <Ionicons
+                                            name={showNewPassword ? "eye-off" : "eye"}
+                                            size={18}
+                                            color="#94A3B8"
+                                        />
+                                    </Pressable>
+                                </View>
                             </View>
+
+                            {/* Inline Error Message Box */}
+                            {errorMessage && (
+                                <View className="mb-4 bg-red-50 border border-red-200 rounded-xl p-3 flex-row items-center">
+                                    <Ionicons name="alert-circle" size={16} color="#EF4444" />
+                                    <Text className="text-red-600 text-xs font-semibold ml-2 flex-1">
+                                        {errorMessage}
+                                    </Text>
+                                </View>
+                            )}
 
                             {/* Dialog Action Buttons */}
                             <View className="flex-row gap-3">
