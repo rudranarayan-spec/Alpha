@@ -1,5 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/client";
+import { useAudioPlayer } from "expo-audio";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
@@ -7,11 +8,11 @@ import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
 import { toast } from "sonner-native";
 
-import { useAudioPlayer } from "expo-audio";
-
 export function usePushNotifications() {
   const { user, token } = useAuth();
   const isAuthenticated = Boolean(user && token);
+
+  // 🔊 Custom notification sound for foreground notifications only.
   const notificationPlayer = useAudioPlayer(
     require("@/assets/notifications/notification_sound1.wav"),
   );
@@ -22,29 +23,37 @@ export function usePushNotifications() {
   const responseListener = useRef<Notifications.EventSubscription | null>(null);
 
   useEffect(() => {
+    // Configure Android notification channel ONCE.
+    const configureAndroidChannel = async () => {
+      if (Platform.OS !== "android") return;
+
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "TruMate Notifications",
+        importance: Notifications.AndroidImportance.MAX,
+
+        enableVibrate: true,
+        vibrationPattern: [0, 250, 250, 250],
+
+        enableLights: true,
+        lightColor: "#EE9F19",
+
+        sound: "notification_sound1.wav",
+
+        lockscreenVisibility:
+          Notifications.AndroidNotificationVisibility.PUBLIC,
+      });
+    };
+
     const registerAndSyncToken = async () => {
       if (!isAuthenticated || !token) return;
 
       try {
-        // 2. Android High-Priority Notification Channel Setup with Custom Sound
-        if (Platform.OS === "android") {
-          await Notifications.setNotificationChannelAsync("default", {
-            name: "TruMate Notifications",
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            enableVibrate: true,
-            enableLights: true,
-            lightColor: "#EE9F19",
-            // Custom bundled sound
-            sound: "notification_sound1.wav",
-            lockscreenVisibility:
-              Notifications.AndroidNotificationVisibility.PUBLIC,
-          });
-        }
+        await configureAndroidChannel();
 
-        // 3. Request Device Permissions Defensively
+        // Permission
         const { status: existingStatus } =
           await Notifications.getPermissionsAsync();
+
         let finalStatus = existingStatus;
 
         if (existingStatus !== "granted") {
@@ -53,95 +62,80 @@ export function usePushNotifications() {
         }
 
         if (finalStatus !== "granted") {
-          console.warn("[Push] Permission denied by the device user.");
+          console.warn("[Push] Notification permission denied.");
           return;
         }
 
-        // 4. EAS Project ID Resolution
+        // Project ID
         const projectId =
           Constants.expoConfig?.extra?.eas?.projectId ??
           Constants.easConfig?.projectId;
 
         if (!projectId) {
-          console.error(
-            "[Push] Setup aborted: Missing EAS Project ID in app.json.",
-          );
+          console.error("[Push] Missing EAS Project ID.");
           return;
         }
 
-        // 5. Fetch Expo Push Token
-        const tokenResponse = await Notifications.getExpoPushTokenAsync({
+        // Expo Push Token
+        const { data: pushToken } = await Notifications.getExpoPushTokenAsync({
           projectId,
         });
-        const pushToken = tokenResponse.data;
 
-        if (pushToken) {
-          console.log("\n===========================================");
-          console.log("EXPO PUSH TOKEN:", pushToken);
-          console.log("===========================================\n");
+        const deviceName =
+          Device.modelName || Device.deviceName || `${Platform.OS} Device`;
 
-          const deviceName =
-            Device.modelName || Device.deviceName || `${Platform.OS} Device`;
+        await api.post("/notifications/register-token", {
+          push_token: pushToken,
+          platform: Platform.OS,
+          device_name: deviceName,
+        });
 
-          // 6. Register Token with Backend API
-          const response = await api.post("/notifications/register-token", {
-            push_token: pushToken,
-            platform: Platform.OS,
-            device_name: deviceName,
-          });
-
-          if (response.status === 200 || response.status === 201) {
-            console.log(
-              "[Push] Device token successfully bound to user profile.",
-            );
-          }
-        }
-      } catch (error) {
-        // Handle error silently or log if needed
+        console.log("[Push] Token synced.");
+      } catch (err) {
+        console.log("[Push] Registration failed:", err);
       }
     };
 
     registerAndSyncToken();
 
-    // Attach Foreground Notification Listeners & Toast Trigger
+    // ==========================
+    // FOREGROUND NOTIFICATIONS
+    // ==========================
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
-        console.log("[Push] Foreground Notification Received:", notification);
+        console.log("[Push] Foreground Notification:", notification);
 
         const title = notification.request.content.title || "New Notification";
-        const body = notification.request.content.body;
 
+        const body = notification.request.content.body || "";
+
+        // 🔊 Play only ONE custom sound.
         try {
           notificationPlayer.seekTo(0);
           notificationPlayer.play();
-        } catch (e) {
-          console.log("Notification sound failed:", e);
+        } catch (err) {
+          console.log("[Push] Sound failed:", err);
         }
 
-        // Display visual toast message using sonner-native
-        if (body) {
-          toast.success(body, {
-            description: title,
-            duration: 4000,
-          });
-        } else {
-          toast.info(title);
-        }
+        toast.success(body || title, {
+          description: title,
+          duration: 4000,
+        });
       });
 
+    // ==========================
+    // USER TAPPED NOTIFICATION
+    // ==========================
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("[Push] Notification Response (User Tapped):", response);
-        // Handle deep linking or screen routing on tap here if needed
+        console.log("[Push] Notification tapped:", response);
+
+        // TODO: Navigate based on response.notification.request.content.data
       });
 
     return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
     };
   }, [isAuthenticated, token]);
 }
