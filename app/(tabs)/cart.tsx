@@ -1,5 +1,4 @@
 import { AntDesign, Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AnimatePresence, MotiView } from 'moti';
@@ -18,6 +17,7 @@ import {
 import { OrderSuccessModal } from '@/components/OrderSuccessModal';
 import { orderService } from '@/services/order.service';
 import { useCartStore } from '@/store/cart.store';
+import { useAudioPlayer } from "expo-audio";
 import { toast } from 'sonner-native';
 
 export default function CartScreen() {
@@ -52,6 +52,10 @@ export default function CartScreen() {
 
     // Mock pre-set user delivery address check
     const hasUserAddress = true;
+
+    const orderSuccessPlayer = useAudioPlayer(
+  require("@/assets/sounds/success_sound.wav")
+);
 
     const handlePlaceOrder = useCallback(async () => {
         if (dueAmount > 0) {
@@ -109,18 +113,11 @@ export default function CartScreen() {
                         clearCart();
 
                         try {
-                            const { sound } = await Audio.Sound.createAsync(
-                                require('@/assets/notifications/success_sound.mp3')
-                            );
-                            await sound.playAsync();
-
-                            sound.setOnPlaybackStatusUpdate((status) => {
-                                if (status.isLoaded && status.didJustFinish) {
-                                    sound.unloadAsync();
-                                }
-                            });
-                        } catch (soundError) {
-                            console.log('Error playing success sound:', soundError);
+                            orderSuccessPlayer.seekTo(0);
+                            orderSuccessPlayer.play();
+                            console.log("AUDIO: Playing")
+                        } catch (error) {
+                            console.log("Order success sound error:", error);
                         }
 
                         setTimeout(() => {
