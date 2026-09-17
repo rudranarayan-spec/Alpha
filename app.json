@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Trumate",
-    "slug": "trumate",
+    "slug": "alpha",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/cld/icon.png",
@@ -48,9 +48,7 @@
         {
           "icon": "./assets/images/notification-icon.png",
           "color": "#1C3516",
-          "sounds": [
-            "./assets/notifications/notification_sound1.wav"
-          ]
+          "sounds": ["./assets/notifications/notification_sound1.wav"]
         }
       ],
       "expo-audio",
