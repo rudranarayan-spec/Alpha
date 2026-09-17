@@ -7,9 +7,14 @@ import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
 import { toast } from "sonner-native";
 
+import { useAudioPlayer } from "expo-audio";
+
 export function usePushNotifications() {
   const { user, token } = useAuth();
   const isAuthenticated = Boolean(user && token);
+  const notificationPlayer = useAudioPlayer(
+    require("@/assets/notifications/notification_sound1.wav"),
+  );
 
   const notificationListener = useRef<Notifications.EventSubscription | null>(
     null,
@@ -24,11 +29,16 @@ export function usePushNotifications() {
         // 2. Android High-Priority Notification Channel Setup with Custom Sound
         if (Platform.OS === "android") {
           await Notifications.setNotificationChannelAsync("default", {
-            name: "Default Operations",
+            name: "TruMate Notifications",
             importance: Notifications.AndroidImportance.MAX,
             vibrationPattern: [0, 250, 250, 250],
-            lightColor: "#EE9F19", // Matching your app's warm accent theme
-            sound: "notification_sound.mp3", // Note: Android looks inside res/raw/ without extension or with depending on config, but usually just the filename or filename without extension. Let's use "notification_sound.mp3" or "notification_sound".
+            enableVibrate: true,
+            enableLights: true,
+            lightColor: "#EE9F19",
+            // Custom bundled sound
+            sound: "notification_sound1.wav",
+            lockscreenVisibility:
+              Notifications.AndroidNotificationVisibility.PUBLIC,
           });
         }
 
@@ -100,6 +110,13 @@ export function usePushNotifications() {
 
         const title = notification.request.content.title || "New Notification";
         const body = notification.request.content.body;
+
+        try {
+          notificationPlayer.seekTo(0);
+          notificationPlayer.play();
+        } catch (e) {
+          console.log("Notification sound failed:", e);
+        }
 
         // Display visual toast message using sonner-native
         if (body) {
