@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import SupportModal from '@/components/SupportModal';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api/client';
 import { toast } from 'sonner-native';
@@ -44,7 +45,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const queryClient = useQueryClient();
-
+  const [isSupportModalVisible, setIsSupportModalVisible] = useState(false);
   const isTablet = width >= 768;
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -79,22 +80,22 @@ export default function ProfileScreen() {
     const phoneNumber = "tel:8260348598";
 
     try {
-        const supported = await Linking.canOpenURL(phoneNumber);
+      const supported = await Linking.canOpenURL(phoneNumber);
 
-        if (supported) {
-            await Linking.openURL(phoneNumber);
-        } else {
-            toast.error("Not Supported", {
-                description: "Your device does not support making phone calls.",
-            });
-        }
-    } catch (error) {
-        console.error("Failed to open dialer:", error);
-        toast.error("Error", {
-            description: "Could not open phone dialer.",
+      if (supported) {
+        await Linking.openURL(phoneNumber);
+      } else {
+        toast.error("Not Supported", {
+          description: "Your device does not support making phone calls.",
         });
+      }
+    } catch (error) {
+      console.error("Failed to open dialer:", error);
+      toast.error("Error", {
+        description: "Could not open phone dialer.",
+      });
     }
-};
+  };
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to log out?', [
@@ -294,7 +295,7 @@ export default function ProfileScreen() {
               bgColor="bg-[#EE9F19]/10"
               title="Help & Support Desk"
               subtitle="24/7 customer service support"
-              onPress={handleOpenDialer}
+              onPress={() => setIsSupportModalVisible(true)}
               isTablet={isTablet}
             />
             <ProfileOptionRow
@@ -354,6 +355,10 @@ export default function ProfileScreen() {
           </View>
         </View>
       </ScrollView>
+      <SupportModal
+        visible={isSupportModalVisible}
+        onClose={() => setIsSupportModalVisible(false)}
+      />
     </View>
   );
 }
@@ -383,9 +388,8 @@ function ProfileOptionRow({
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-row items-center py-4 px-3 active:bg-[#1C3516]/5 border-b border-[#1C3516]/10 ${
-        isLast ? 'border-b-0' : ''
-      }`}
+      className={`flex-row items-center py-4 px-3 active:bg-[#1C3516]/5 border-b border-[#1C3516]/10 ${isLast ? 'border-b-0' : ''
+        }`}
     >
       <View
         className={`rounded-xl items-center justify-center ${bgColor}`}

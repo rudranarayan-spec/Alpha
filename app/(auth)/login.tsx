@@ -134,7 +134,7 @@ export default function LoginScreen() {
             setForgotSuccessMessage(
                 data.message || "A new password has been sent to your email address"
             );
-            
+
             if (Platform.OS !== "web") {
                 await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
@@ -173,17 +173,17 @@ export default function LoginScreen() {
                         flexGrow: 1,
                         justifyContent: isTablet ? "center" : "space-between",
                         paddingBottom: Math.max(insets.bottom, 24),
+                        paddingTop: isTablet ? 24 : 0,
                     }}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                     bounces={false}
                 >
                     <View
-                        className={`w-full ${
-                            isTablet
-                                ? "flex-row items-center justify-center px-12"
-                                : "px-5"
-                        }`}
+                        className={`w-full ${isTablet
+                            ? "flex-row flex-wrap items-center justify-center px-8 lg:px-12 gap-8" // Added flex-wrap and gap
+                            : "px-5"
+                            }`}
                     >
                         {/* Top branding area with large logo (Smooth clean fade-in) */}
                         <MotiView
@@ -192,7 +192,7 @@ export default function LoginScreen() {
                             transition={{ type: "timing", duration: 350 }}
                             className={
                                 isTablet
-                                    ? "mr-12 max-w-md flex-1 items-start"
+                                    ? "max-w-md flex-1 items-start min-w-[300px]" // Added min-w to prevent crushing
                                     : "items-center pb-6 pt-2"
                             }
                         >
@@ -207,11 +207,10 @@ export default function LoginScreen() {
                                 />
                             </View>
                             <Text
-                                className={`mt-3 font-medium leading-5 text-[#1C3516]/70 ${
-                                    isTablet
-                                        ? "max-w-sm text-left text-base"
-                                        : "max-w-[320px] text-center text-xs"
-                                }`}
+                                className={`mt-3 font-medium leading-5 text-[#1C3516]/70 ${isTablet
+                                    ? "max-w-sm text-left text-base"
+                                    : "max-w-[320px] text-center text-xs"
+                                    }`}
                             >
                                 Sign in to access your dashboard, operations, and account settings.
                             </Text>
@@ -222,11 +221,10 @@ export default function LoginScreen() {
                             from={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ type: "timing", duration: 350, delay: 50 }}
-                            className={`w-full bg-white ${
-                                isTablet
-                                    ? "max-w-md rounded-[36px] p-10"
+                            className={`w-full bg-white ${isTablet
+                                    ? "max-w-md rounded-[36px] p-10 flex-1 min-w-[380px]" // Added flex-1 and min-w
                                     : "rounded-[32px] px-6 py-6"
-                            }`}
+                                }`}
                             style={{
                                 shadowColor: "#1C3516",
                                 shadowOffset: { width: 0, height: 12 },
