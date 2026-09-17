@@ -54,8 +54,8 @@ export default function CartScreen() {
     const hasUserAddress = true;
 
     const orderSuccessPlayer = useAudioPlayer(
-  require("@/assets/sounds/success_sound1.wav")
-);
+        require("@/assets/sounds/success_sound1.wav")
+    );
 
     const handlePlaceOrder = useCallback(async () => {
         if (dueAmount > 0) {
