@@ -1,6 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/client";
-import { useAudioPlayer } from "expo-audio";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
@@ -13,9 +12,9 @@ export function usePushNotifications() {
   const isAuthenticated = Boolean(user && token);
 
   // 🔊 Custom notification sound for foreground notifications only.
-  const notificationPlayer = useAudioPlayer(
-    require("@/assets/notifications/notification_sound1.wav"),
-  );
+  // const notificationPlayer = useAudioPlayer(
+  //   require("@/assets/notifications/notification_sound1.wav"),
+  // );
 
   const notificationListener = useRef<Notifications.EventSubscription | null>(
     null,
@@ -37,7 +36,7 @@ export function usePushNotifications() {
         enableLights: true,
         lightColor: "#EE9F19",
 
-        sound: "notification_sound1.wav",
+        // sound: "notification_sound1.wav",
 
         lockscreenVisibility:
           Notifications.AndroidNotificationVisibility.PUBLIC,
@@ -110,12 +109,12 @@ export function usePushNotifications() {
         const body = notification.request.content.body || "";
 
         // 🔊 Play only ONE custom sound.
-        try {
-          notificationPlayer.seekTo(0);
-          notificationPlayer.play();
-        } catch (err) {
-          console.log("[Push] Sound failed:", err);
-        }
+        // try {
+        //   notificationPlayer.seekTo(0);
+        //   notificationPlayer.play();
+        // } catch (err) {
+        //   console.log("[Push] Sound failed:", err);
+        // }
 
         toast.success(body || title, {
           description: title,
