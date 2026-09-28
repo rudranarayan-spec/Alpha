@@ -17,9 +17,8 @@ export default function SupportModal({ visible, onClose }: SupportModalProps) {
         staleTime: 1000 * 60 * 5, 
     });
 
-    const supportNumber = data?.status === 'success' && data?.support_number ? data.support_number : '020 3957 7573';
-    // Fallback to support@trumate.com if API response doesn't provide an email
-    const supportEmail = (data as any)?.support_email || 'support@trumate.com';
+    const supportNumber = data?.status === 'success' && data?.support_number ? data.support_number : '9437058654';
+    const supportEmail = (data as any)?.support_email || 'trumate.enterprises@gmail.com';
 
     const handleCallNow = () => {
         if (supportNumber && !isLoading) {
