@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Asset } from 'expo-asset';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
 import { useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
@@ -58,39 +60,112 @@ export default function OrdersScreen() {
   const handleDownloadReceipt = async (order: Order) => {
     try {
       setIsDownloading(true);
+      let logoBase64 = '';
+
+      try {
+        const asset = Asset.fromModule(
+          require('../../assets/images/logo-removed-bg.png')
+        );
+
+        await asset.downloadAsync();
+
+        if (asset.localUri) {
+          logoBase64 = await FileSystem.readAsStringAsync(asset.localUri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        }
+      } catch (assetError) {
+        console.warn('Could not load logo watermark asset:', assetError);
+      }
+
+      const logoDataUri = logoBase64
+        ? `data:image/png;base64,${logoBase64}`
+        : '';
+
       const htmlContent = `
         <html>
           <head>
             <style>
-              body { font-family: 'Helvetica', Arial, sans-serif; padding: 30px; color: #1C3516; }
-              .header { text-align: center; margin-bottom: 24px; border-bottom: 2px solid #1C3516/10; padding-bottom: 16px; }
-              .title { font-size: 20px; font-weight: bold; color: #1C3516; margin: 0; }
-              .subtitle { font-size: 12px; color: #1C3516/60; margin-top: 4px; }
+              body { 
+                font-family: 'Helvetica', Arial, sans-serif; 
+                padding: 30px; 
+                color: #1C3516; 
+                position: relative;
+                margin: 0;
+              }
+
+              /* Watermark Styling */
+              .watermark-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: -1;
+                opacity: 0.06; /* Very subtle background watermark effect */
+              }
+              .watermark-container img {
+                width: 350px;
+                height: auto;
+                object-fit: contain;
+              }
+
+              .header { text-align: center; margin-bottom: 24px; border-bottom: 2px solid rgba(28, 53, 22, 0.1); padding-bottom: 16px; }
+              .brand-name { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #1C3516; font-weight: bold; margin-bottom: 4px; }
+              .title { font-size: 22px; font-weight: bold; color: #1C3516; margin: 0; }
+              .subtitle { font-size: 12px; color: rgba(28, 53, 22, 0.6); margin-top: 4px; }
+              
               .meta-table { width: 100%; margin-bottom: 20px; font-size: 12px; }
               .meta-table td { padding: 4px 0; }
+              
               .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-              .items-table th { background: #FDFBF7; text-align: left; padding: 8px; border-bottom: 1px solid #1C3516/20; }
-              .items-table td { padding: 8px; border-bottom: 1px solid #1C3516/10; }
+              .items-table th { background: #FDFBF7; text-align: left; padding: 8px; border-bottom: 1px solid rgba(28, 53, 22, 0.2); }
+              .items-table td { padding: 8px; border-bottom: 1px solid rgba(28, 53, 22, 0.1); }
+              
               .total-section { margin-top: 20px; text-align: right; font-size: 14px; font-weight: bold; color: #1C3516; }
+              .footer-note { margin-top: 40px; text-align: center; font-size: 10px; color: rgba(28, 53, 22, 0.5); }
             </style>
           </head>
           <body>
+            <!-- Watermark Background Layer -->
+            ${logoDataUri
+          ? `<div class="watermark-container"><img src="${logoDataUri}" /></div>`
+          : ""
+        }
+
             <div class="header">
+              <div class="brand-name">Trumate</div>
               <h1 class="title">ORDER RECEIPT</h1>
               <div class="subtitle">Order #${order.order_number}</div>
             </div>
+
             <table class="meta-table">
-              <tr><td><strong>Date:</strong> ${order.order_date}</td><td style="text-align: right;"><strong>Status:</strong> ${order.status.toUpperCase()}</td></tr>
-              <tr><td><strong>Payment Mode:</strong> ${order.mode_of_payment.toUpperCase()}</td><td style="text-align: right;"><strong>User ID:</strong> #${order.user_id}</td></tr>
+              <tr>
+                <td><strong>Date:</strong> ${order.order_date}</td>
+                <td style="text-align: right;"><strong>Status:</strong> ${order.status.toUpperCase()}</td>
+              </tr>
+              <tr>
+                <td><strong>Payment Mode:</strong> ${order.mode_of_payment.toUpperCase()}</td>
+                <td style="text-align: right;"><strong>User ID:</strong> #${order.user_id}</td>
+              </tr>
             </table>
+
             <table class="items-table">
               <thead>
-                <tr><th>Item</th><th>Pack Size</th><th>Qty</th><th style="text-align: right;">Amount</th></tr>
+                <tr>
+                  <th>Item</th>
+                  <th>Pack Size</th>
+                  <th>Qty</th>
+                  <th style="text-align: right;">Amount</th>
+                </tr>
               </thead>
               <tbody>
                 ${order.order_details
-                  .map(
-                    (d) => `
+          .map(
+            (d) => `
                   <tr>
                     <td>${d.product_name}</td>
                     <td>${d.pack_size}</td>
@@ -98,19 +173,30 @@ export default function OrdersScreen() {
                     <td style="text-align: right;">Rs. ${(parseFloat(d.cost_price) * d.qty).toFixed(2)}</td>
                   </tr>
                 `
-                  )
-                  .join('')}
+          )
+          .join("")}
               </tbody>
             </table>
+
             <div class="total-section">
               Total Amount: Rs. ${parseFloat(order.amount).toFixed(2)}
+            </div>
+
+            <div class="footer-note">
+              Thank you for choosing Trumate 100% biodegradable sustainable tableware!
             </div>
           </body>
         </html>
       `;
 
-      const { uri } = await Print.printToFileAsync({ html: htmlContent });
-      await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+      const { uri } = await Print.printToFileAsync({
+        html: htmlContent,
+      });
+
+      await Sharing.shareAsync(uri, {
+        UTI: '.pdf',
+        mimeType: 'application/pdf',
+      });
     } catch (error) {
       console.error('Failed to generate receipt PDF:', error);
     } finally {
