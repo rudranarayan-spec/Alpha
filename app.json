@@ -54,7 +54,7 @@
       [
         "expo-asset",
         {
-          "assets": ["./assets/images/logo-removed-bg.png"]
+          "assets": ["./assets/images/logo_removed_bg.png"]
         }
       ]
     ],
