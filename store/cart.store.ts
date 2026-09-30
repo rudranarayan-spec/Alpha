@@ -35,9 +35,9 @@ export const useCartStore = create<CartState>()(
       items: {},
 
       addItem: (product, quantity = 1) => {
-        if (get().dueAmount > 0) {
-          return;
-        }
+        // if (get().dueAmount > 0) {
+        //   return;
+        // }
         set((state) => {
           const existing = state.items[product.id];
           const currentQty = existing?.quantity ?? 0;
@@ -86,9 +86,9 @@ export const useCartStore = create<CartState>()(
       },
 
       updateQuantity: (product, delta) => {
-        if (delta > 0 && get().dueAmount > 0) {
-          return;
-        }
+        // if (delta > 0 && get().dueAmount > 0) {
+        //   return;
+        // }
         set((state) => {
           const currentQty = state.items[product.id]?.quantity ?? 0;
           const nextQty = currentQty + delta;

@@ -31,7 +31,7 @@ export default function CartScreen() {
     // Cart Store Hooks
     const cartItemsMap = useCartStore((state) => state.items);
     const updateQuantity = useCartStore((state) => state.updateQuantity);
-    const dueAmount = useCartStore((state) => state.dueAmount);
+    // const dueAmount = useCartStore((state) => state.dueAmount);
     const setQuantity = useCartStore((state) => state.setQuantity);
     const removeItem = useCartStore((state) => state.removeItem);
     const clearCart = useCartStore((state) => state.clearCart);
@@ -58,13 +58,13 @@ export default function CartScreen() {
     );
 
     const handlePlaceOrder = useCallback(async () => {
-        if (dueAmount > 0) {
-            toast.warning("Outstanding Dues", {
-                description: `You have an active due amount of ₹${dueAmount.toFixed(2)}. Please clear it to place new orders.`,
-                duration: 4000,
-            });
-            return;
-        }
+        // if (dueAmount > 0) {
+        //     toast.warning("Outstanding Dues", {
+        //         description: `You have an active due amount of ₹${dueAmount.toFixed(2)}. Please clear it to place new orders.`,
+        //         duration: 4000,
+        //     });
+        //     return;
+        // }
 
         if (!hasUserAddress) {
             router.push('/profile/address' as any);
