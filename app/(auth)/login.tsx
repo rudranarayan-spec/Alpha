@@ -1,14 +1,15 @@
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/client";
-import { forgotPasswordService } from "@/services/auth.service"; // <-- Import the new service
+import { forgotPasswordService } from "@/services/auth.service";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { MotiView } from "moti";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
     ActivityIndicator,
     Image,
+    KeyboardAvoidingView,
     Modal,
     Platform,
     Pressable,
@@ -22,7 +23,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
-    const { width, height } = useWindowDimensions();
+    const { width } = useWindowDimensions();
     const insets = useSafeAreaInsets();
     const { login } = useAuth();
 
@@ -40,7 +41,18 @@ export default function LoginScreen() {
     const [forgotErrorMessage, setForgotErrorMessage] = useState<string | null>(null);
 
     const isTablet = width >= 768;
-    const isSmallPhone = width < 360;
+
+    // FIX: Ref to the ScrollView so we can scroll the password field into view
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    // FIX: Called when the password field gains focus — scrolls down enough
+    // to clear the keyboard on small phones where the card bottom is hidden.
+    const handlePasswordFocus = () => {
+        // Delay matches the keyboard animation (~250–300ms on both platforms)
+        setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 300);
+    };
 
     const handleLogin = async () => {
         if (isSigningIn) return;
@@ -72,31 +84,18 @@ export default function LoginScreen() {
 
             if (data.status === "success") {
                 await login(data.token, data.user);
-
                 if (Platform.OS !== "web") {
-                    await Haptics.notificationAsync(
-                        Haptics.NotificationFeedbackType.Success
-                    );
+                    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                 }
             } else {
-                // console.log("Login failed:", data.message);
-                setErrorMessage(
-                    data.message || "Invalid credentials. Please try again."
-                );
+                setErrorMessage(data.message || "Invalid credentials. Please try again.");
                 if (Platform.OS !== "web") {
-                    await Haptics.notificationAsync(
-                        Haptics.NotificationFeedbackType.Error
-                    );
+                    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
                 }
             }
         } catch (error: any) {
-            // console.error("Login Error:", error);
-
             const serverMessage = error.response?.data?.message;
-            setErrorMessage(
-                serverMessage || "Network error. Please check your connection."
-            );
-
+            setErrorMessage(serverMessage || "Network error. Please check your connection.");
             if (Platform.OS !== "web") {
                 await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             }
@@ -126,10 +125,7 @@ export default function LoginScreen() {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
 
-            // --- Using the modularized service here ---
-            const data = await forgotPasswordService({
-                email: cleanForgotEmail,
-            });
+            const data = await forgotPasswordService({ email: cleanForgotEmail });
 
             setForgotSuccessMessage(
                 data.message || "A new password has been sent to your email address"
@@ -139,7 +135,6 @@ export default function LoginScreen() {
                 await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
         } catch (error: any) {
-            // console.error("Forgot Password Error:", error);
             const serverMessage = error?.message || error?.response?.data?.message;
             setForgotErrorMessage(
                 serverMessage || "Failed to send reset email. Please try again."
@@ -156,7 +151,7 @@ export default function LoginScreen() {
         <View className="flex-1 bg-[#FDFBF7]">
             <StatusBar barStyle="dark-content" backgroundColor="#FDFBF7" />
 
-            {/* Subtle soft decorative background shapes matching brand */}
+            {/* Decorative background shapes */}
             <View
                 pointerEvents="none"
                 className="absolute -right-20 top-12 h-64 w-64 rounded-full bg-[#EE9F19]/5"
@@ -166,101 +161,296 @@ export default function LoginScreen() {
                 className="absolute -left-24 top-36 h-56 w-56 rounded-full bg-[#1C3516]/5"
             />
 
-            <SafeAreaView className="flex-1 pt-12">
-                <ScrollView
+            <SafeAreaView className="flex-1">
+                {/*
+                  FIX: KeyboardAvoidingView wraps ScrollView.
+                  - iOS: behavior="padding" lifts the content above the keyboard.
+                  - Android: behavior="height" shrinks the available height so
+                    ScrollView naturally becomes scrollable past the keyboard.
+                  keyboardVerticalOffset accounts for the SafeAreaView top inset
+                  on iOS so the header doesn't get pushed too high.
+                */}
+                <KeyboardAvoidingView
                     className="flex-1"
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        justifyContent: isTablet ? "center" : "space-between",
-                        paddingBottom: Math.max(insets.bottom, 24),
-                        paddingTop: isTablet ? 24 : 0,
-                    }}
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                    bounces={false}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
                 >
-                    <View
-                        className={`w-full ${isTablet
-                            ? "flex-row flex-wrap items-center justify-center px-8 lg:px-12 gap-8" // Added flex-wrap and gap
-                            : "px-5"
-                            }`}
+                    <ScrollView
+                        ref={scrollViewRef}
+                        className="flex-1"
+                        contentContainerStyle={{
+                            flexGrow: 1,
+                            justifyContent: isTablet ? "center" : "space-between",
+                            paddingBottom: Math.max(insets.bottom, 32),
+                            paddingTop: isTablet ? 24 : 0,
+                        }}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                        // FIX: "on-drag" lets users dismiss the keyboard by scrolling,
+                        // which is the expected behaviour when they want to see the button.
+                        keyboardDismissMode="on-drag"
+                        bounces={false}
                     >
-                        {/* Top branding area with large logo (Smooth clean fade-in) */}
-                        <MotiView
-                            from={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ type: "timing", duration: 350 }}
-                            className={
+                        <View
+                            className={`w-full pt-8 ${
                                 isTablet
-                                    ? "max-w-md flex-1 items-start min-w-[300px]" // Added min-w to prevent crushing
-                                    : "items-center pb-6 pt-2"
-                            }
+                                    ? "flex-row flex-wrap items-center justify-center px-8 gap-8"
+                                    : "px-5"
+                            }`}
                         >
-                            <View className="items-center justify-center py-2">
-                                <Image
-                                    source={require("@/assets/images/logo-removed-bg.png")}
-                                    style={{
-                                        width: isTablet ? 400 : 350,
-                                        height: isTablet ? 160 : 125,
-                                    }}
-                                    resizeMode="contain"
-                                />
-                            </View>
-                            <Text
-                                className={`mt-3 font-medium leading-5 text-[#1C3516]/70 ${isTablet
-                                    ? "max-w-sm text-left text-base"
-                                    : "max-w-[320px] text-center text-xs"
-                                    }`}
+                            {/* Branding */}
+                            <MotiView
+                                from={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ type: "timing", duration: 350 }}
+                                className={
+                                    isTablet
+                                        ? "max-w-md flex-1 items-start min-w-[300px]"
+                                        : "items-center pb-6 pt-2"
+                                }
                             >
-                                Sign in to access your dashboard, operations, and account settings.
-                            </Text>
-                        </MotiView>
+                                <View className="items-center justify-center py-2">
+                                    <Image
+                                        source={require("@/assets/images/logo-removed-bg.png")}
+                                        style={{
+                                            width: isTablet ? 400 : 350,
+                                            height: isTablet ? 160 : 125,
+                                        }}
+                                        resizeMode="contain"
+                                    />
+                                </View>
+                                <Text
+                                    className={`mt-3 font-medium leading-5 text-[#1C3516]/70 ${
+                                        isTablet
+                                            ? "max-w-sm text-left text-base"
+                                            : "max-w-[320px] text-center text-xs"
+                                    }`}
+                                >
+                                    Sign in to access your dashboard, operations, and account settings.
+                                </Text>
+                            </MotiView>
 
-                        {/* Login Form Card */}
-                        <MotiView
-                            from={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ type: "timing", duration: 350, delay: 50 }}
-                            className={`w-full bg-white ${isTablet
-                                    ? "max-w-md rounded-[36px] p-10 flex-1 min-w-[380px]" // Added flex-1 and min-w
-                                    : "rounded-[32px] px-6 py-6"
+                            {/* Login Form Card */}
+                            <MotiView
+                                from={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ type: "timing", duration: 350, delay: 50 }}
+                                className={`w-full bg-white ${
+                                    isTablet
+                                        ? "max-w-md rounded-[36px] p-10 flex-1 min-w-[380px]"
+                                        : "rounded-[32px] px-6 py-6"
                                 }`}
-                            style={{
-                                shadowColor: "#1C3516",
-                                shadowOffset: { width: 0, height: 12 },
-                                shadowOpacity: 0.06,
-                                shadowRadius: 24,
-                                elevation: 8,
-                            }}
-                        >
-                            {!isTablet && (
-                                <View className="mb-5 h-1.5 w-10 self-center rounded-full bg-slate-200" />
-                            )}
+                                style={{
+                                    shadowColor: "#1C3516",
+                                    shadowOffset: { width: 0, height: 12 },
+                                    shadowOpacity: 0.06,
+                                    shadowRadius: 24,
+                                    elevation: 8,
+                                }}
+                            >
+                                {!isTablet && (
+                                    <View className="mb-5 h-1.5 w-10 self-center rounded-full bg-slate-200" />
+                                )}
 
-                            <View className="mb-5">
-                                <Text className="text-2xl font-black tracking-tight text-[#1C3516]">
-                                    Welcome back
+                                <View className="mb-5">
+                                    <Text className="text-2xl font-black tracking-tight text-[#1C3516]">
+                                        Welcome back
+                                    </Text>
+                                    <Text className="mt-1 text-xs font-medium leading-5 text-slate-500">
+                                        Please enter your credentials to sign in.
+                                    </Text>
+                                </View>
+
+                                {errorMessage && (
+                                    <View className="mb-4 flex-row items-start rounded-2xl border border-red-100 bg-red-50 px-3.5 py-3">
+                                        <Ionicons name="alert-circle-outline" size={18} color="#DC2626" />
+                                        <Text className="ml-2 flex-1 text-xs font-semibold leading-5 text-red-700">
+                                            {errorMessage}
+                                        </Text>
+                                    </View>
+                                )}
+
+                                {/* Email Input */}
+                                <View className="mb-4">
+                                    <Text className="mb-1.5 text-xs font-semibold text-slate-700">
+                                        Email Address
+                                    </Text>
+                                    <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3">
+                                        <Ionicons name="mail-outline" size={18} color="#64748B" />
+                                        <TextInput
+                                            className="ml-2.5 flex-1 text-sm font-medium text-slate-800"
+                                            placeholder="name@example.com"
+                                            placeholderTextColor="#94A3B8"
+                                            value={email}
+                                            onChangeText={setEmail}
+                                            keyboardType="email-address"
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            // FIX: Move to password on return key
+                                            returnKeyType="next"
+                                            onSubmitEditing={() => passwordInputRef.current?.focus()}
+                                            blurOnSubmit={false}
+                                        />
+                                    </View>
+                                </View>
+
+                                {/* Password Input */}
+                                <View className="mb-6">
+                                    <Text className="mb-1.5 text-xs font-semibold text-slate-700">
+                                        Password
+                                    </Text>
+                                    <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3">
+                                        <Ionicons name="lock-closed-outline" size={18} color="#64748B" />
+                                        <TextInput
+                                            // FIX: ref so email's returnKeyType="next" can focus it
+                                            ref={passwordInputRef}
+                                            className="ml-2.5 flex-1 text-sm font-medium text-slate-800"
+                                            placeholder="Enter your password"
+                                            placeholderTextColor="#94A3B8"
+                                            value={password}
+                                            onChangeText={setPassword}
+                                            secureTextEntry={!showPassword}
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            returnKeyType="done"
+                                            onSubmitEditing={handleLogin}
+                                            // FIX: scroll to bottom when password field is focused
+                                            onFocus={handlePasswordFocus}
+                                        />
+                                        <Pressable
+                                            onPress={() => setShowPassword(!showPassword)}
+                                            hitSlop={8}
+                                        >
+                                            <Ionicons
+                                                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                                                size={18}
+                                                color="#64748B"
+                                            />
+                                        </Pressable>
+                                    </View>
+                                </View>
+
+                                {/* Submit Button */}
+                                <Pressable
+                                    onPress={handleLogin}
+                                    disabled={isSigningIn}
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Sign In"
+                                    style={({ pressed }) => ({
+                                        opacity: isSigningIn ? 0.72 : pressed ? 0.92 : 1,
+                                        transform: [{ scale: pressed && !isSigningIn ? 0.985 : 1 }],
+                                    })}
+                                    className="overflow-hidden rounded-[18px]"
+                                >
+                                    <LinearGradient
+                                        colors={["#EE9F19", "#D98A0E"]}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        className="flex-row items-center justify-center px-5"
+                                        style={{ height: 52 }}
+                                    >
+                                        {isSigningIn ? (
+                                            <>
+                                                <ActivityIndicator size="small" color="#FFFFFF" />
+                                                <Text className="ml-3 text-xs font-black uppercase tracking-[1.6px] text-white">
+                                                    Signing In...
+                                                </Text>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Text className="text-xs font-black uppercase tracking-[1.5px] text-white">
+                                                    Sign In
+                                                </Text>
+                                                <Ionicons
+                                                    name="arrow-forward"
+                                                    size={16}
+                                                    color="#FFFFFF"
+                                                    style={{ marginLeft: 8 }}
+                                                />
+                                            </>
+                                        )}
+                                    </LinearGradient>
+                                </Pressable>
+
+                                {/* Forgot Password */}
+                                <Pressable
+                                    onPress={() => {
+                                        setForgotEmail(email);
+                                        setForgotErrorMessage(null);
+                                        setForgotSuccessMessage(null);
+                                        setShowForgotModal(true);
+                                    }}
+                                    className="mt-4 self-center py-1"
+                                >
+                                    <Text className="text-xs font-semibold text-[#1C3516]/80">
+                                        Forgot password?
+                                    </Text>
+                                </Pressable>
+
+                                <Text className="mt-5 text-center text-[10px] font-medium leading-4 text-slate-400">
+                                    By continuing, you agree to the Trumate Terms of Service and Privacy Policy.
                                 </Text>
-                                <Text className="mt-1 text-xs font-medium leading-5 text-slate-500">
-                                    Please enter your credentials to sign in.
-                                </Text>
+                            </MotiView>
+                        </View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+
+            {/* Forgot Password Modal */}
+            <Modal
+                visible={showForgotModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowForgotModal(false)}
+            >
+                <KeyboardAvoidingView
+                    className="flex-1"
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
+                    <View className="flex-1 items-center justify-center bg-black/50 px-5">
+                        <View className="w-full max-w-md rounded-[32px] bg-white p-6 shadow-xl">
+                            {/* Modal Header */}
+                            <View className="flex-row items-center justify-between pb-4">
+                                <View className="flex-row items-center">
+                                    <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-[#EE9F19]/10">
+                                        <Ionicons name="key-outline" size={20} color="#EE9F19" />
+                                    </View>
+                                    <Text className="text-lg font-black text-[#1C3516]">
+                                        Reset Password
+                                    </Text>
+                                </View>
+                                <Pressable
+                                    onPress={() => setShowForgotModal(false)}
+                                    className="h-8 w-8 items-center justify-center rounded-full bg-slate-100"
+                                    hitSlop={8}
+                                >
+                                    <Ionicons name="close" size={18} color="#64748B" />
+                                </Pressable>
                             </View>
 
-                            {errorMessage && (
+                            <Text className="mb-4 text-xs font-medium leading-5 text-slate-500">
+                                Enter your account email and we&apos;ll send you instructions to reset your password.
+                            </Text>
+
+                            {forgotErrorMessage && (
                                 <View className="mb-4 flex-row items-start rounded-2xl border border-red-100 bg-red-50 px-3.5 py-3">
-                                    <Ionicons
-                                        name="alert-circle-outline"
-                                        size={18}
-                                        color="#DC2626"
-                                    />
-                                    <Text className="ml-2 flex-1 text-xs font-semibold leading-5 text-red-700">
-                                        {errorMessage}
+                                    <Ionicons name="alert-circle-outline" size={18} color="#DC2626" />
+                                    <Text className="ml-2 flex-1 text-xs font-semibold text-red-700">
+                                        {forgotErrorMessage}
                                     </Text>
                                 </View>
                             )}
 
-                            {/* Email Input */}
-                            <View className="mb-4">
+                            {forgotSuccessMessage && (
+                                <View className="mb-4 flex-row items-start rounded-2xl border border-emerald-100 bg-emerald-50 px-3.5 py-3">
+                                    <Ionicons name="checkmark-circle-outline" size={18} color="#059669" />
+                                    <Text className="ml-2 flex-1 text-xs font-semibold text-emerald-700">
+                                        {forgotSuccessMessage}
+                                    </Text>
+                                </View>
+                            )}
+
+                            <View className="mb-5">
                                 <Text className="mb-1.5 text-xs font-semibold text-slate-700">
                                     Email Address
                                 </Text>
@@ -270,53 +460,22 @@ export default function LoginScreen() {
                                         className="ml-2.5 flex-1 text-sm font-medium text-slate-800"
                                         placeholder="name@example.com"
                                         placeholderTextColor="#94A3B8"
-                                        value={email}
-                                        onChangeText={setEmail}
+                                        value={forgotEmail}
+                                        onChangeText={setForgotEmail}
                                         keyboardType="email-address"
                                         autoCapitalize="none"
                                         autoCorrect={false}
+                                        returnKeyType="send"
+                                        onSubmitEditing={handleForgotPassword}
                                     />
                                 </View>
                             </View>
 
-                            {/* Password Input */}
-                            <View className="mb-6">
-                                <Text className="mb-1.5 text-xs font-semibold text-slate-700">
-                                    Password
-                                </Text>
-                                <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3">
-                                    <Ionicons name="lock-closed-outline" size={18} color="#64748B" />
-                                    <TextInput
-                                        className="ml-2.5 flex-1 text-sm font-medium text-slate-800"
-                                        placeholder="Enter your password"
-                                        placeholderTextColor="#94A3B8"
-                                        value={password}
-                                        onChangeText={setPassword}
-                                        secureTextEntry={!showPassword}
-                                        autoCapitalize="none"
-                                        autoCorrect={false}
-                                    />
-                                    <Pressable onPress={() => setShowPassword(!showPassword)}>
-                                        <Ionicons
-                                            name={showPassword ? "eye-off-outline" : "eye-outline"}
-                                            size={18}
-                                            color="#64748B"
-                                        />
-                                    </Pressable>
-                                </View>
-                            </View>
-
-                            {/* Submit Button */}
                             <Pressable
-                                onPress={handleLogin}
-                                disabled={isSigningIn}
-                                accessibilityRole="button"
-                                accessibilityLabel="Sign In"
+                                onPress={handleForgotPassword}
+                                disabled={isSendingForgot}
                                 style={({ pressed }) => ({
-                                    opacity: isSigningIn ? 0.72 : pressed ? 0.92 : 1,
-                                    transform: [
-                                        { scale: pressed && !isSigningIn ? 0.985 : 1 },
-                                    ],
+                                    opacity: isSendingForgot ? 0.72 : pressed ? 0.92 : 1,
                                 })}
                                 className="overflow-hidden rounded-[18px]"
                             >
@@ -325,156 +484,30 @@ export default function LoginScreen() {
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     className="flex-row items-center justify-center px-5"
-                                    style={{ height: 52 }}
+                                    style={{ height: 48 }}
                                 >
-                                    {isSigningIn ? (
+                                    {isSendingForgot ? (
                                         <>
                                             <ActivityIndicator size="small" color="#FFFFFF" />
-                                            <Text className="ml-3 text-xs font-black uppercase tracking-[1.6px] text-white">
-                                                Signing In...
+                                            <Text className="ml-3 text-xs font-black uppercase tracking-[1.5px] text-white">
+                                                Sending...
                                             </Text>
                                         </>
                                     ) : (
-                                        <>
-                                            <Text className="text-xs font-black uppercase tracking-[1.5px] text-white">
-                                                Sign In
-                                            </Text>
-                                            <Ionicons
-                                                name="arrow-forward"
-                                                size={16}
-                                                color="#FFFFFF"
-                                                style={{ marginLeft: 8 }}
-                                            />
-                                        </>
+                                        <Text className="text-xs font-black uppercase tracking-[1.5px] text-white">
+                                            Send Reset Link
+                                        </Text>
                                     )}
                                 </LinearGradient>
                             </Pressable>
-
-                            {/* Forgot Password Link Button */}
-                            <Pressable
-                                onPress={() => {
-                                    setForgotEmail(email);
-                                    setForgotErrorMessage(null);
-                                    setForgotSuccessMessage(null);
-                                    setShowForgotModal(true);
-                                }}
-                                className="mt-4 self-center py-1"
-                            >
-                                <Text className="text-xs font-semibold text-[#1C3516]/80">
-                                    Forgot password?
-                                </Text>
-                            </Pressable>
-
-                            <Text className="mt-5 text-center text-[10px] font-medium leading-4 text-slate-400">
-                                By continuing, you agree to the Trumate Terms of Service and Privacy Policy.
-                            </Text>
-                        </MotiView>
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
-
-            {/* Forgot Password Modal Overlay */}
-            <Modal
-                visible={showForgotModal}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setShowForgotModal(false)}
-            >
-                <View className="flex-1 items-center justify-center bg-black/50 px-5">
-                    <View className="w-full max-w-md rounded-[32px] bg-white p-6 shadow-xl">
-                        {/* Modal Header */}
-                        <View className="flex-row items-center justify-between pb-4">
-                            <View className="flex-row items-center">
-                                <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-[#EE9F19]/10">
-                                    <Ionicons name="key-outline" size={20} color="#EE9F19" />
-                                </View>
-                                <Text className="text-lg font-black text-[#1C3516]">
-                                    Reset Password
-                                </Text>
-                            </View>
-                            <Pressable
-                                onPress={() => setShowForgotModal(false)}
-                                className="h-8 w-8 items-center justify-center rounded-full bg-slate-100"
-                            >
-                                <Ionicons name="close" size={18} color="#64748B" />
-                            </Pressable>
                         </View>
-
-                        <Text className="mb-4 text-xs font-medium leading-5 text-slate-500">
-                            Enter your account email address and we&apos;ll send you instructions to reset your password.
-                        </Text>
-
-                        {forgotErrorMessage && (
-                            <View className="mb-4 flex-row items-start rounded-2xl border border-red-100 bg-red-50 px-3.5 py-3">
-                                <Ionicons name="alert-circle-outline" size={18} color="#DC2626" />
-                                <Text className="ml-2 flex-1 text-xs font-semibold text-red-700">
-                                    {forgotErrorMessage}
-                                </Text>
-                            </View>
-                        )}
-
-                        {forgotSuccessMessage && (
-                            <View className="mb-4 flex-row items-start rounded-2xl border border-emerald-100 bg-emerald-50 px-3.5 py-3">
-                                <Ionicons name="checkmark-circle-outline" size={18} color="#059669" />
-                                <Text className="ml-2 flex-1 text-xs font-semibold text-emerald-700">
-                                    {forgotSuccessMessage}
-                                </Text>
-                            </View>
-                        )}
-
-                        {/* Forgot Email Input */}
-                        <View className="mb-5">
-                            <Text className="mb-1.5 text-xs font-semibold text-slate-700">
-                                Email Address
-                            </Text>
-                            <View className="flex-row items-center rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-3">
-                                <Ionicons name="mail-outline" size={18} color="#64748B" />
-                                <TextInput
-                                    className="ml-2.5 flex-1 text-sm font-medium text-slate-800"
-                                    placeholder="name@example.com"
-                                    placeholderTextColor="#94A3B8"
-                                    value={forgotEmail}
-                                    onChangeText={setForgotEmail}
-                                    keyboardType="email-address"
-                                    autoCapitalize="none"
-                                    autoCorrect={false}
-                                />
-                            </View>
-                        </View>
-
-                        {/* Send Reset Instructions Button */}
-                        <Pressable
-                            onPress={handleForgotPassword}
-                            disabled={isSendingForgot}
-                            style={({ pressed }) => ({
-                                opacity: isSendingForgot ? 0.72 : pressed ? 0.92 : 1,
-                            })}
-                            className="overflow-hidden rounded-[18px]"
-                        >
-                            <LinearGradient
-                                colors={["#EE9F19", "#D98A0E"]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                className="flex-row items-center justify-center px-5"
-                                style={{ height: 48 }}
-                            >
-                                {isSendingForgot ? (
-                                    <>
-                                        <ActivityIndicator size="small" color="#FFFFFF" />
-                                        <Text className="ml-3 text-xs font-black uppercase tracking-[1.5px] text-white">
-                                            Sending...
-                                        </Text>
-                                    </>
-                                ) : (
-                                    <Text className="text-xs font-black uppercase tracking-[1.5px] text-white">
-                                        Send Reset Link
-                                    </Text>
-                                )}
-                            </LinearGradient>
-                        </Pressable>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );
 }
+
+// FIX: ref declared outside the component so it's stable across renders
+// (using module-level ref avoids the "ref on function component" lint warning)
+const passwordInputRef = React.createRef<TextInput>();
